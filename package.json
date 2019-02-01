@@ -1,0 +1,33 @@
+{
+  "name": "exdom",
+  "version": "0.1.0",
+  "description": "DOM extensions",
+  "author": "Morris Brodersen <mb@morrisbrodersen.de>",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "scripts": {
+    "format": "prettier --write src/**/*.js *.json *.js",
+    "lint": "eslint src",
+    "test": "nyc mocha test",
+    "build": "rollup -c"
+  },
+  "nyc": {
+    "include": [
+      "src"
+    ],
+    "all": true,
+    "exitOnError": true,
+    "reporter": "html"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/register": "^7.0.0",
+    "eslint": "^5.12.1",
+    "jsdom": "^13.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "prettier": "^1.16.3",
+    "rollup": "^1.1.2"
+  }
+}
