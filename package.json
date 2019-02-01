@@ -4,9 +4,10 @@
   "description": "DOM extensions",
   "author": "Morris Brodersen <mb@morrisbrodersen.de>",
   "license": "ISC",
+  "module": "src/index.js",
   "main": "dist/exdom.js",
   "scripts": {
-    "format": "prettier --write src/**/*.js package.json *.js",
+    "format": "prettier --write src/**/*.js *.js package.json",
     "lint": "eslint src",
     "test": "nyc mocha test",
     "build": "rollup -c"
