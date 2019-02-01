@@ -1,8 +1,9 @@
 module.exports = {
   input: "src/index.js",
   output: {
-    file: "dist/index.js",
+    file: "dist/exdom.js",
     format: "umd",
-    name: "XD"
+    name: "XD",
+    sourcemap: true
   }
 };
