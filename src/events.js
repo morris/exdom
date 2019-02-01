@@ -1,9 +1,9 @@
 import { forEach, getWindow } from "./util";
 
-export function observe(els, options1, options2) {
+export function observe(els, options, extra) {
   const o = {
-    ...(typeof options1 === "function" ? { action: options1 } : options1),
-    ...(typeof options2 === "function" ? { action: options2 } : options2)
+    ...(typeof options === "function" ? { action: options } : options),
+    ...(typeof extra === "function" ? { action: extra } : extra)
   };
 
   let hasVolatile = false;
@@ -29,7 +29,7 @@ export function observe(els, options1, options2) {
 
     types.forEach((type, index) => {
       listen(el, type.name, e => {
-        if (!type.volatile) cache[index] = type.full ? e : e.detail;
+        if (!type.volatile) cache[index] = e.detail;
 
         if (!hasVolatile || type.volatile) {
           if (o.defer) {

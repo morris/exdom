@@ -1,17 +1,17 @@
 import { forEach, parseEl, getWindow } from "./util";
 
-export function setChildren(els, optionsArray, extraOptions) {
+export function setChildren(els, optionsArray, extra) {
   forEach(els, el => {
     optionsArray.forEach((options, index) => {
-      setChild(el, options, { ...extraOptions, index });
+      setChild(el, options, { ...extra, index });
     });
   });
 }
 
-export function setChild(els, options, extraOptions) {
+export function setChild(els, options, extra) {
   const o = {
     ...(typeof options === "string" ? { html: options } : options),
-    ...extraOptions
+    ...extra
   };
 
   const index = o.index || 0;

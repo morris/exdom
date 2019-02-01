@@ -1,27 +1,22 @@
 const assert = require("assert");
 const { JSDOM } = require("jsdom");
 
-const {
-  observe,
-  send
-} = require('../src');
+const { observe, send } = require("../src");
 
-describe('From the events module,', () => {
-
-  describe('observe', () => {
-
-    it('should observe events and call the handler correctly', () => {
+describe("From the events module,", () => {
+  describe("observe", () => {
+    it("should observe events and call the handler correctly", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById('test');
+      const test = dom.window.document.getElementById("test");
       const calls = [];
 
       observe(test, (foo, bar, baz) => {
         calls.push([foo, bar, baz]);
       });
 
-      send(test, 'foo', 1);
-      send(test, 'bar', 2);
-      send(test, 'baz', 3);
+      send(test, "foo", 1);
+      send(test, "bar", 2);
+      send(test, "baz", 3);
 
       assert.deepStrictEqual(calls, [
         [1, undefined, undefined],
@@ -30,27 +25,58 @@ describe('From the events module,', () => {
       ]);
     });
 
-    it('should observe events and call the handler once if defer is set', done => {
+    it("should observe events and call the handler once if defer is set", done => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById('test');
+      const test = dom.window.document.getElementById("test");
       const calls = [];
 
       observe(test, { defer: 1 }, (foo, bar, baz) => {
         calls.push([foo, bar, baz]);
       });
 
-      send(test, 'foo', 1);
-      send(test, 'bar', 2);
-      send(test, 'baz', 3);
+      send(test, "foo", 1);
+      send(test, "bar", 2);
+      send(test, "baz", 3);
 
       setTimeout(() => {
-        assert.deepStrictEqual(calls, [
-          [1, 2, 3]
-        ]);
+        assert.deepStrictEqual(calls, [[1, 2, 3]]);
         done();
       }, 1);
     });
 
-  });
+    it("should observe volatile events and call the handler correctly", () => {
+      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
+      const calls = [];
 
+      observe(test, (foo, bar, $baz) => {
+        calls.push([foo, bar, $baz]);
+      });
+
+      send(test, "foo", 1);
+      send(test, "bar", 2);
+      send(test, "baz", 3);
+
+      assert.deepStrictEqual(calls, [[1, 2, 3]]);
+    });
+
+    it("should observe full events and call the handler correctly", () => {
+      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
+      const calls = [];
+
+      observe(test, (foo, bar, _baz) => {
+        assert.equal(_baz.detail, 3);
+        calls.push([foo, bar, _baz]);
+      });
+
+      send(test, "foo", 1);
+      send(test, "bar", 2);
+      send(test, "baz", 3);
+
+      assert.deepStrictEqual(calls, [
+        [1, 2, new dom.window.CustomEvent("baz", {})]
+      ]);
+    });
+  });
 });

@@ -1,6 +1,7 @@
 set -e
 ls .origin-push || git remote get-url --push origin > .origin-push
 npm run format
+npm run lint
 npm run build
 git pull -r
 npm test
