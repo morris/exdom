@@ -361,9 +361,9 @@
       } // pass data, if any
 
 
-      if (o.data) {
-        child.dispatchEvent(new CustomEvent("data", {
-          detail: o.data,
+      if (o.pass) {
+        child.dispatchEvent(new CustomEvent("pass", {
+          detail: o.pass,
           bubbles: false
         }));
       }
