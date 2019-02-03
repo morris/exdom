@@ -295,11 +295,18 @@
 
   function setChildren(els, optionsArray, extra) {
     forEach(els, function (el) {
+      var offset = extra && extra.index || 0;
+      var tail = extra && extra.tail || 0;
       optionsArray.forEach(function (options, index) {
         setChild(el, options, _objectSpread({}, extra, {
-          index: (extra && extra.index || 0) + index
+          index: offset + index,
+          tail: tail
         }));
-      });
+      }); // remove obsolete children
+
+      while (el.children.length - optionsArray.length - offset > tail) {
+        el.removeChild(el.lastElementChild);
+      }
     });
   }
   function setChild(els, options, extra) {

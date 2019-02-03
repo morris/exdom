@@ -2,12 +2,21 @@ import { forEach, parseEl, getWindow } from "./util";
 
 export function setChildren(els, optionsArray, extra) {
   forEach(els, el => {
+    const offset = (extra && extra.index) || 0;
+    const tail = (extra && extra.tail) || 0;
+
     optionsArray.forEach((options, index) => {
       setChild(el, options, {
         ...extra,
-        index: ((extra && extra.index) || 0) + index
+        index: offset + index,
+        tail
       });
     });
+
+    // remove obsolete children
+    while (el.children.length - optionsArray.length - offset > tail) {
+      el.removeChild(el.lastElementChild);
+    }
   });
 }
 

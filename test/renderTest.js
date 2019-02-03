@@ -107,7 +107,51 @@ describe("From the render module,", () => {
 
       assert.equal(
         dom.window.document.getElementById("test").innerHTML,
-        '<div>foo</div><p>wow</p><p class="x"></p><p>lol</p><p>lel</p>'
+        '<div>foo</div><p>wow</p><p class="x"></p><p>lol</p>'
+      );
+    });
+
+    it("should remove obsolete children", () => {
+      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+
+      const options = {
+        html: "<p>lel</p>",
+        init: el => {
+          listen(el, "pass", e => {
+            setHtml(el, e.detail.test);
+          });
+        }
+      };
+
+      setChildren(
+        dom.window.document.getElementById("test"),
+        [
+          { test: "foo" },
+          { test: "bar" },
+          { test: "baz" },
+          { test: "lol" }
+        ].map(pass => ({
+          ...options,
+          pass
+        }))
+      );
+
+      assert.equal(
+        dom.window.document.getElementById("test").innerHTML,
+        "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>"
+      );
+
+      setChildren(
+        dom.window.document.getElementById("test"),
+        [{ test: "foo" }, { test: "bar" }].map(pass => ({
+          ...options,
+          pass
+        }))
+      );
+
+      assert.equal(
+        dom.window.document.getElementById("test").innerHTML,
+        "<p>foo</p><p>bar</p>"
       );
     });
   });
