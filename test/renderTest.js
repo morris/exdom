@@ -10,7 +10,7 @@ describe("From the render module,", () => {
     it("should render a child", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
       let init = false;
-      let data;
+      let pass;
 
       setChild(
         dom.window.document.getElementById("test"),
@@ -21,20 +21,20 @@ describe("From the render module,", () => {
             assert.equal(el.tagName, "P");
             assert.equal(el.innerHTML, "test");
 
-            listen(el, "data", e => {
-              data = e.detail;
+            listen(el, "pass", e => {
+              pass = e.detail;
             });
           }
         },
         {
-          data: {
+          pass: {
             foo: "bar"
           }
         }
       );
 
       assert.ok(init);
-      assert.deepStrictEqual(data, {
+      assert.deepStrictEqual(pass, {
         foo: "bar"
       });
     });
@@ -47,7 +47,7 @@ describe("From the render module,", () => {
       const options = {
         html: "<p>lel</p>",
         init: el => {
-          listen(el, "data", e => {
+          listen(el, "pass", e => {
             setHtml(el, e.detail.test);
           });
         }
@@ -60,9 +60,9 @@ describe("From the render module,", () => {
           { test: "bar" },
           { test: "baz" },
           { test: "lol" }
-        ].map(data => ({
+        ].map(pass => ({
           ...options,
-          data
+          pass
         }))
       );
 
@@ -79,9 +79,9 @@ describe("From the render module,", () => {
           { test: "baz" },
           { test: "lol" },
           { test: "lel" }
-        ].map(data => ({
+        ].map(pass => ({
           ...options,
-          data
+          pass
         }))
       );
 
@@ -97,11 +97,11 @@ describe("From the render module,", () => {
           { test: "wow" },
           { test: "baz", html: '<p class="x"></p>', init: () => null },
           { test: "lol" }
-        ].map(data => ({
+        ].map(pass => ({
           ...options,
-          html: data.html || options.html,
-          init: data.init || options.init,
-          data
+          html: pass.html || options.html,
+          init: pass.init || options.init,
+          pass
         }))
       );
 

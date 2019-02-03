@@ -77,10 +77,10 @@ export function setChild(els, options, extra) {
     }
 
     // pass data, if any
-    if (o.data) {
+    if (o.pass) {
       child.dispatchEvent(
-        new CustomEvent("data", {
-          detail: o.data,
+        new CustomEvent("pass", {
+          detail: o.pass,
           bubbles: false
         })
       );
