@@ -1,7 +1,9 @@
-const assert = require("assert");
-const { JSDOM } = require("jsdom");
+/* eslint-env node, mocha */
+import * as assert from "assert";
+import { JSDOM } from "jsdom";
 
-const { setChildren, setChild, listen, setHtml } = require("../src");
+import { listen } from "../src/events";
+import { setChildren, setChild, setHtml } from "../src/render";
 
 describe("From the render module,", () => {
   describe("setChild", () => {
@@ -93,7 +95,7 @@ describe("From the render module,", () => {
         [
           { test: "foo", html: "<div></div>" },
           { test: "wow" },
-          { test: "baz", html: '<p class="x"></p>', init: el => null },
+          { test: "baz", html: '<p class="x"></p>', init: () => null },
           { test: "lol" }
         ].map(data => ({
           ...options,

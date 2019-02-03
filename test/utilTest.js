@@ -1,7 +1,8 @@
-const assert = require("assert");
-const { JSDOM } = require("jsdom");
+/* eslint-env node, mocha */
+import * as assert from "assert";
+import { JSDOM } from "jsdom";
 
-const { getRefs } = require("../src");
+import { getRefs } from "../src/util";
 
 describe("From the util module,", () => {
   describe("getRefs", () => {

@@ -4,120 +4,158 @@
   (global = global || self, factory(global.XD = {}));
 }(this, function (exports) { 'use strict';
 
-  function getRefs(els, classNames, prefix) {
-    const refs = {};
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
 
-    forEach(els, el => {
-      classNames.forEach(className => {
+    return _typeof(obj);
+  }
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function _objectSpread(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+      var ownKeys = Object.keys(source);
+
+      if (typeof Object.getOwnPropertySymbols === 'function') {
+        ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+          return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+        }));
+      }
+
+      ownKeys.forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    }
+
+    return target;
+  }
+
+  function getRefs(els, classNames, prefix) {
+    var refs = {};
+    forEach(els, function (el) {
+      classNames.forEach(function (className) {
         refs[className] = [];
-        forEach(el.getElementsByClassName(prefix + className), el_ => {
+        forEach(el.getElementsByClassName((prefix || "-") + className), function (el_) {
           refs[className].push(el_);
         });
       });
     });
-
     return refs;
   }
-
-  function escapeHtml(text, context) {
-    const tempEl = getTempEl(context);
+  function escapeHtml(context, text) {
+    var tempEl = getTempEl(context);
     tempEl.innerText = text;
     return tempEl.innerHTML;
   }
-
-  function parseEl(html, context) {
+  function parseEl(context, html) {
     if (typeof html === "string") {
-      const tempEl = getTempEl(context);
+      var tempEl = getTempEl(context);
       tempEl.innerHTML = html;
       return tempEl.firstElementChild;
     }
 
     return html;
   }
-
   function getWindow(els) {
-    const doc = els.ownerDocument || els[0].ownerDocument;
-    return doc.defaultView || doc.parentWindow;
+    var document = els.ownerDocument || els[0].ownerDocument;
+    return document.defaultView || document.parentWindow;
   }
-
   function hasClass(els, className) {
-    const tmp = map(els, el => (el.className ? el.className.split(/\s+/g) : []));
-    return (
-      tmp.filter(classNames => classNames.indexOf(className) >= 0).length ===
-      tmp.length
-    );
+    var tmp = map(els, function (el) {
+      return el.className ? el.className.split(/\s+/g) : [];
+    });
+    return tmp.filter(function (classNames) {
+      return classNames.indexOf(className) >= 0;
+    }).length === tmp.length;
   }
-
-  const BREAK = {};
-
+  var BREAK = {};
   function forEach(list, fn) {
     if (list && list.addEventListener) list = [list];
     if (!list) list = [];
-    for (let i = 0, l = list.length; i < l; ++i) {
+
+    for (var i = 0, l = list.length; i < l; ++i) {
       if (fn(list[i], i) === BREAK) return list;
     }
+
     return list;
   }
-
   function map(list, fn) {
     if (list && list.addEventListener) list = [list];
     if (!list) list = [];
-    const result = [];
-    for (let i = 0, l = list.length; i < l; ++i) {
+    var result = [];
+
+    for (var i = 0, l = list.length; i < l; ++i) {
       result.push(fn(list[i], i));
     }
+
     return result;
   }
-
   function filter(list, fn) {
     if (list && list.addEventListener) list = [list];
     if (!list) list = [];
-    const result = [];
-    for (let i = 0, l = list.length; i < l; ++i) {
+    var result = [];
+
+    for (var i = 0, l = list.length; i < l; ++i) {
       if (fn(list[i], i)) result.push(list[i]);
     }
+
     return result;
-  }
+  } //
 
-  //
-
-  let _tempEl;
+  var _tempEl;
 
   function getTempEl(context) {
-    const doc = context.ownerDocument || context[0].ownerDocument;
-    if (!_tempEl) _tempEl = doc.createElement("div");
+    var document = context.ownerDocument || context[0].ownerDocument;
+    if (!_tempEl) _tempEl = document.createElement("div");
     return _tempEl;
   }
 
   function observe(els, options, extra) {
-    const o = {
-      ...(typeof options === "function" ? { action: options } : options),
-      ...(typeof extra === "function" ? { action: extra } : extra)
-    };
+    var o = _objectSpread({}, typeof options === "function" ? {
+      action: options
+    } : options, typeof extra === "function" ? {
+      action: extra
+    } : extra);
 
-    let hasVolatile = false;
-
-    const types = (o.types || parseArgumentNames(o.action)).map(name => {
-      const full = name[0] === "_";
-      const volatile = full || name[0] === "$";
-
+    var hasVolatile = false;
+    var types = (o.types || parseArgumentNames(o.action)).map(function (name) {
+      var full = name[0] === "_";
+      var volatile = full || name[0] === "$";
       if (volatile) hasVolatile = true;
-
       return {
         name: volatile ? name.slice(1) : name,
-        volatile,
-        full
+        volatile: volatile,
+        full: full
       };
     });
-
-    forEach(els, el => {
-      const cache = [];
+    forEach(els, function (el) {
+      var cache = [];
       cache.length = types.length;
-
-      let deferTimeout;
-
-      types.forEach((type, index) => {
-        listen(el, type.name, e => {
+      var deferTimeout;
+      types.forEach(function (type, index) {
+        listen(el, type.name, function (e) {
           if (!type.volatile) cache[index] = e.detail;
 
           if (!hasVolatile || type.volatile) {
@@ -131,7 +169,7 @@
 
           function applyAction() {
             if (type.volatile) {
-              const args = cache.slice(0);
+              var args = cache.slice(0);
               args[index] = type.full ? e : e.detail;
               o.action.apply(null, args);
             } else {
@@ -142,80 +180,62 @@
       });
     });
   }
-
   function relay(els, type, targets) {
-    listen(els, type, e => {
+    listen(els, type, function (e) {
       send(targets, type, e.detail);
     });
   }
-
   function listen(els, type, listener, options) {
-    forEach(els, el => {
-      el.addEventListener(
-        type,
-        e => {
-          try {
-            return listener(e);
-          } catch (ex) {
-            emit(el, "error", ex);
-          }
-        },
-        options || false
-      );
+    forEach(els, function (el) {
+      el.addEventListener(type, function (e) {
+        try {
+          return listener(e);
+        } catch (ex) {
+          emit(el, "error", ex);
+        }
+      }, options || false);
     });
   }
-
   function send(els, type, detail) {
-    if (!els || (!els.ownerDocument && els.length === 0)) return;
+    if (!els || !els.ownerDocument && els.length === 0) return;
 
-    const { CustomEvent } = getWindow(els);
+    var _getWindow = getWindow(els),
+        CustomEvent = _getWindow.CustomEvent;
 
-    dispatch(
-      els,
-      new CustomEvent(type, {
-        detail: arguments.length === 2 ? {} : detail,
-        bubbles: false
-      })
-    );
+    dispatch(els, new CustomEvent(type, {
+      detail: arguments.length === 2 ? {} : detail,
+      bubbles: false
+    }));
   }
-
   function emit(els, type, detail) {
-    if (!els || (!els.ownerDocument && els.length === 0)) return;
+    if (!els || !els.ownerDocument && els.length === 0) return;
 
-    const { CustomEvent } = getWindow(els);
+    var _getWindow2 = getWindow(els),
+        CustomEvent = _getWindow2.CustomEvent;
 
-    dispatch(
-      els,
-      new CustomEvent(type, {
-        detail: arguments.length === 2 ? {} : detail,
-        bubbles: true
-      })
-    );
+    dispatch(els, new CustomEvent(type, {
+      detail: arguments.length === 2 ? {} : detail,
+      bubbles: true
+    }));
   }
-
   function dispatch(els, e) {
-    forEach(els, el => {
+    forEach(els, function (el) {
       el.dispatchEvent(e);
     });
-  }
-
-  //
+  } //
 
   function parseArgumentNames(fn) {
-    const m = fn
-      .toString()
-      .match(/^function[^(]*\(([^)]*)\)|^\(([^)]*)\)|^([a-zA-Z$_][^=]*)/);
-    const args = m[1] || m[2] || m[3];
-
-    return args
-      .split(",")
-      .map(arg => arg.trim())
-      .filter(arg => !!arg);
+    var m = fn.toString().match(/^function[^(]*\(([^)]*)\)|^\(([^)]*)\)|^([a-zA-Z$_][^=]*)/);
+    var args = m[1] || m[2] || m[3];
+    return args.split(",").map(function (arg) {
+      return arg.trim();
+    }).filter(function (arg) {
+      return !!arg;
+    });
   }
 
   function getValue(els) {
-    const el = els && els.addEventListener ? els : els[0];
-
+    var el = els && els.addEventListener ? els : els[0];
     if (!el) return;
 
     switch (el.tagName === "INPUT" ? el.type : el.tagName) {
@@ -223,20 +243,22 @@
       case "password":
       case "SELECT":
         return el.value || "";
+
       case "TEXTAREA":
         return el.value;
+
       case "checkbox":
         return !!el.checked;
+
       default:
         return;
     }
   }
-
   function setValue(els, value) {
-    forEach(els, el => {
-      const tagName = el.tagName;
-      const val = toValue(value);
-      let elValue, multiple;
+    forEach(els, function (el) {
+      var tagName = el.tagName;
+      var val = toValue(value);
+      var elValue, multiple;
 
       switch (tagName === "INPUT" ? el.type : tagName) {
         case "text":
@@ -244,30 +266,26 @@
         case "TEXTAREA":
           if (el.value !== val + "") el.value = val;
           break;
+
         case "checkbox":
           elValue = el.getAttribute("value") || "on";
-          el.checked = Array.isArray(val)
-            ? value.indexOf(elValue) >= 0
-            : val === elValue;
+          el.checked = Array.isArray(val) ? value.indexOf(elValue) >= 0 : val === elValue;
           break;
+
         case "radio":
           // TODO
           break;
+
         case "SELECT":
           multiple = el.multiple && Array.isArray(val);
-
-          forEach(el.options, option => {
-            const optionValue = option.value || option.textContent;
-            option.selected = multiple
-              ? value.indexOf(optionValue) >= 0
-              : value + "" == optionValue;
+          forEach(el.options, function (option) {
+            var optionValue = option.value || option.textContent;
+            option.selected = multiple ? value.indexOf(optionValue) >= 0 : value + "" == optionValue;
           });
-
           break;
       }
     });
   }
-
   function toValue(value) {
     if (value === null || value === undefined || value === false) return "";
     if (value === true) return "on";
@@ -276,47 +294,43 @@
   }
 
   function setChildren(els, optionsArray, extra) {
-    forEach(els, el => {
-      optionsArray.forEach((options, index) => {
-        setChild(el, options, { ...extra, index });
+    forEach(els, function (el) {
+      optionsArray.forEach(function (options, index) {
+        setChild(el, options, _objectSpread({}, extra, {
+          index: (extra && extra.index || 0) + index
+        }));
       });
     });
   }
-
   function setChild(els, options, extra) {
-    const o = {
-      ...(typeof options === "string" ? { html: options } : options),
-      ...extra
-    };
+    var o = _objectSpread({}, typeof options === "string" ? {
+      html: options
+    } : options, extra);
 
-    const index = o.index || 0;
-    const tail = o.tail || 0;
-    const compat = o.compatible || compatible;
+    var index = o.index || 0;
+    var tail = o.tail || 0;
+    var compat = o.compatible || compatible;
+    forEach(els, function (el) {
+      var _getWindow = getWindow(el),
+          Event = _getWindow.Event,
+          CustomEvent = _getWindow.CustomEvent;
 
-    forEach(els, el => {
-      const { Event, CustomEvent } = getWindow(el);
-      const proto = o.proto || (o.html && getProto(o.html, el));
-      const maxIndex = el.children.length - tail;
+      var proto = o.proto || o.html && getProto(el, o.html);
+      var maxIndex = el.children.length - tail;
 
       if (index > maxIndex) {
-        throw new Error(
-          `Cannot render child element at index ${index} of ${
-          el.children.length
-        } children and tail ${tail}`
-        );
-      }
+        throw new Error("Cannot render child element at index ".concat(index, " of ").concat(el.children.length, " children and tail ").concat(tail));
+      } // reconciliation
 
-      // reconciliation
-      const childAtIndex = el.children[index];
-      let child;
+
+      var childAtIndex = el.children[index];
+      var child;
 
       if (!proto) {
         // if no prototype element was given,
         // there must be an existing child to init/update
         if (!childAtIndex) {
-          throw new Error(
-            `Cannot render new child element at index ${index} without base html`
-          );
+          throw new Error("Cannot render new child element at index ".concat(index, " without base html"));
         }
 
         child = childAtIndex;
@@ -330,63 +344,58 @@
         // must replace unless existing child is compatible
         // also send destroy event to existing child
         child = cloneProto(proto);
-        childAtIndex.dispatchEvent(
-          new Event("destroy", {
-            bubbles: false
-          })
-        );
+        childAtIndex.dispatchEvent(new Event("destroy", {
+          bubbles: false
+        }));
         el.replaceChild(child, childAtIndex);
       } else {
         // finally, if child is compatible with prototype, dont insert/replace,
         // just init and update existing child
         child = childAtIndex;
-      }
+      } // init child once
 
-      // init child once
+
       if (o.init && !child.__init) {
         child.__init = true;
         o.init(child);
-      }
+      } // pass data, if any
 
-      // pass data, if any
+
       if (o.data) {
-        child.dispatchEvent(
-          new CustomEvent("data", {
-            detail: o.data,
-            bubbles: false
-          })
-        );
+        child.dispatchEvent(new CustomEvent("data", {
+          detail: o.data,
+          bubbles: false
+        }));
       }
     });
   }
-
   function setText(els, text) {
-    forEach(els, el => {
+    forEach(els, function (el) {
       if (el.__text !== text) {
-        el.__text = text;
-        // safe guard if setText() and setHtml() are used on the same element
+        el.__text = text; // safe guard if setText() and setHtml() are used on the same element
+
         el.__html = {};
         el.innerText = text;
       }
     });
   }
-
   function setHtml(els, html) {
-    forEach(els, el => {
+    forEach(els, function (el) {
       if (el.__html !== html) {
-        el.__html = html;
-        // see above
+        el.__html = html; // see above
+
         el.__text = {};
         el.innerHTML = html;
       }
     });
   }
-
   function setAttr(els, name, value) {
-    forEach(els, el => {
+    forEach(els, function (el) {
       if (!el.__attr) el.__attr = {};
+
       if (!el.__attr.hasOwnProperty(name) || el.__attr[name] !== value) {
         el.__attr[name] = value;
+
         if (typeof value === "undefined" || value === null) {
           el.removeAttribute(name, value);
         } else {
@@ -395,15 +404,16 @@
       }
     });
   }
-
   function setClass(els, classNames, condition) {
-    const list = classNames.split(/\s+/g);
+    var list = classNames.split(/\s+/g);
+    forEach(els, function (el) {
+      var changed = false;
+      var result = el.className.split(/\s+/g).filter(function (className) {
+        return !!className;
+      });
+      list.forEach(function (className) {
+        var index = result.indexOf(className);
 
-    forEach(els, el => {
-      let changed = false;
-      const result = el.className.split(/\s+/g).filter(className => !!className);
-      list.forEach(className => {
-        const index = result.indexOf(className);
         if (condition && index === -1) {
           result.push(className);
           changed = true;
@@ -414,34 +424,146 @@
       });
       if (changed) el.className = result.join(" ");
     });
-  }
-
-  //
+  } //
 
   function compatible(el, proto) {
-    return (
-      el.__proto === proto ||
-      (el.tagName === proto.tagName && el.className === proto.className)
-    );
+    return el.__proto === proto || el.tagName === proto.tagName && el.className === proto.className;
   }
 
   function cloneProto(proto) {
-    const el = proto.cloneNode(true);
+    var el = proto.cloneNode(true);
     el.__proto = proto;
-
     return el;
   }
 
-  const protoCache = new Map();
+  var protoCache = new Map();
 
-  function getProto(html, context) {
-    let proto = protoCache.get(html);
+  function getProto(context, html) {
+    var proto = protoCache.get(html);
+
     if (!proto) {
-      proto = parseEl(html, context);
+      proto = parseEl(context, html);
       protoCache.set(html, proto);
     }
 
     return proto;
+  }
+
+  function request(els, options, extraOptions) {
+    var _getWindow = getWindow(els),
+        fetch = _getWindow.fetch;
+
+    var options_ = typeof options === "string" ? {
+      url: options
+    } : options;
+
+    var req = _objectSpread({
+      read: "auto"
+    }, options_, extraOptions, {
+      headers: buildHeaders(els, options_, extraOptions),
+      body: buildBody(els, options_, extraOptions)
+    });
+
+    emit(els, "request", req);
+    var res, body;
+    return fetch(req.url, req).then(function (r) {
+      res = r;
+      emit(els, "res", {
+        req: req,
+        res: res
+      });
+      if (!req.read) return;
+      return readResponse(els, res, req.read).then(function (b) {
+        body = b;
+        emit(els, "fullResponse", {
+          req: req,
+          res: res,
+          body: body
+        });
+      });
+    }).then(function () {
+      if (res.status >= 400) {
+        throw new Error("Status code error ".concat(res.status));
+      }
+
+      return {
+        req: req,
+        res: res,
+        body: body
+      };
+    }).catch(function (err) {
+      err.req = req;
+      err.res = res;
+      err.body = body;
+      emit(els, "requestError", err);
+      throw err;
+    });
+  }
+  function buildHeaders(context, options, extraOptions) {
+    var _getWindow2 = getWindow(context),
+        Headers = _getWindow2.Headers,
+        FormData = _getWindow2.FormData;
+
+    var req = _objectSpread({}, options, extraOptions);
+
+    var headers = new Headers();
+
+    if (req.read === "json" || req.read === "application/json") {
+      headers.set("Accept", "application/json");
+    }
+
+    if (_typeof(req.body) === "object" && !(req.body instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
+
+    Object.keys(options && options.headers || {}).forEach(function (key) {
+      headers.set(key, options.headers[key]);
+    });
+    Object.keys(extraOptions && extraOptions.headers || {}).forEach(function (key) {
+      headers.set(key, extraOptions.headers[key]);
+    });
+    return headers;
+  }
+  function buildBody(context, options, extraOptions) {
+    var _getWindow3 = getWindow(context),
+        FormData = _getWindow3.FormData;
+
+    var body = extraOptions && extraOptions.body || options && options.body;
+
+    if (_typeof(body) === "object" && !(body instanceof FormData)) {
+      return JSON.stringify(options.body);
+    }
+
+    return body;
+  }
+  function readResponse(context, res, contentType) {
+    var c = contentType === "auto" ? (res.headers.get("content-type") || "").toLowerCase() : contentType;
+
+    switch (c.replace(/;.*$/, "")) {
+      case "blob":
+        return res.blob();
+
+      case "formData":
+      case "application/x-www-form-urlencoded":
+        return res.formData();
+
+      case "json":
+      case "application/json":
+        return res.json();
+
+      case "text":
+      case "application/javascript":
+      case "text/css":
+      case "text/csv":
+      case "text/calendar":
+      case "text/html":
+      case "text/javascript":
+      case "text/plain":
+        return res.text();
+
+      default:
+        return res.arrayBuffer();
+    }
   }
 
   exports.observe = observe;
@@ -459,6 +581,10 @@
   exports.setHtml = setHtml;
   exports.setAttr = setAttr;
   exports.setClass = setClass;
+  exports.request = request;
+  exports.buildHeaders = buildHeaders;
+  exports.buildBody = buildBody;
+  exports.readResponse = readResponse;
   exports.getRefs = getRefs;
   exports.escapeHtml = escapeHtml;
   exports.parseEl = parseEl;

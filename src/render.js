@@ -3,7 +3,10 @@ import { forEach, parseEl, getWindow } from "./util";
 export function setChildren(els, optionsArray, extra) {
   forEach(els, el => {
     optionsArray.forEach((options, index) => {
-      setChild(el, options, { ...extra, index });
+      setChild(el, options, {
+        ...extra,
+        index: ((extra && extra.index) || 0) + index
+      });
     });
   });
 }
@@ -20,7 +23,7 @@ export function setChild(els, options, extra) {
 
   forEach(els, el => {
     const { Event, CustomEvent } = getWindow(el);
-    const proto = o.proto || (o.html && getProto(o.html, el));
+    const proto = o.proto || (o.html && getProto(el, o.html));
     const maxIndex = el.children.length - tail;
 
     if (index > maxIndex) {
@@ -159,10 +162,10 @@ function cloneProto(proto) {
 
 const protoCache = new Map();
 
-function getProto(html, context) {
+function getProto(context, html) {
   let proto = protoCache.get(html);
   if (!proto) {
-    proto = parseEl(html, context);
+    proto = parseEl(context, html);
     protoCache.set(html, proto);
   }
 

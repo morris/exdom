@@ -1,7 +1,8 @@
-const assert = require("assert");
-const { JSDOM } = require("jsdom");
+/* eslint-env node, mocha */
+import * as assert from "assert";
+import { JSDOM } from "jsdom";
 
-const { observe, send } = require("../src");
+import { observe, send } from "../src";
 
 describe("From the events module,", () => {
   describe("observe", () => {

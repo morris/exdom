@@ -4,7 +4,7 @@ export function getRefs(els, classNames, prefix) {
   forEach(els, el => {
     classNames.forEach(className => {
       refs[className] = [];
-      forEach(el.getElementsByClassName(prefix + className), el_ => {
+      forEach(el.getElementsByClassName((prefix || "-") + className), el_ => {
         refs[className].push(el_);
       });
     });
@@ -13,13 +13,13 @@ export function getRefs(els, classNames, prefix) {
   return refs;
 }
 
-export function escapeHtml(text, context) {
+export function escapeHtml(context, text) {
   const tempEl = getTempEl(context);
   tempEl.innerText = text;
   return tempEl.innerHTML;
 }
 
-export function parseEl(html, context) {
+export function parseEl(context, html) {
   if (typeof html === "string") {
     const tempEl = getTempEl(context);
     tempEl.innerHTML = html;
@@ -30,8 +30,8 @@ export function parseEl(html, context) {
 }
 
 export function getWindow(els) {
-  const doc = els.ownerDocument || els[0].ownerDocument;
-  return doc.defaultView || doc.parentWindow;
+  const document = els.ownerDocument || els[0].ownerDocument;
+  return document.defaultView || document.parentWindow;
 }
 
 export function hasClass(els, className) {
@@ -78,7 +78,7 @@ export function filter(list, fn) {
 let _tempEl;
 
 function getTempEl(context) {
-  const doc = context.ownerDocument || context[0].ownerDocument;
-  if (!_tempEl) _tempEl = doc.createElement("div");
+  const document = context.ownerDocument || context[0].ownerDocument;
+  if (!_tempEl) _tempEl = document.createElement("div");
   return _tempEl;
 }
