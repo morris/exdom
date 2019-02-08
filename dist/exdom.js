@@ -92,8 +92,13 @@
   }
   var BREAK = {};
   function forEach(els, fn) {
-    if (els && els.addEventListener) els = [els];
-    if (!els) els = [];
+    if (els) {
+      if (els.addEventListener) {
+        els = [els];
+      }
+    } else {
+      els = [];
+    }
 
     for (var i = 0, l = els.length; i < l; ++i) {
       if (fn(els[i], i) === BREAK) return els;
@@ -102,8 +107,14 @@
     return els;
   }
   function map(els, fn) {
-    if (els && els.addEventListener) els = [els];
-    if (!els) els = [];
+    if (els) {
+      if (els.addEventListener) {
+        els = [els];
+      }
+    } else {
+      els = [];
+    }
+
     var result = [];
 
     for (var i = 0, l = els.length; i < l; ++i) {
@@ -113,8 +124,14 @@
     return result;
   }
   function filter(els, fn) {
-    if (els && els.addEventListener) els = [els];
-    if (!els) els = [];
+    if (els) {
+      if (els.addEventListener) {
+        els = [els];
+      }
+    } else {
+      els = [];
+    }
+
     var result = [];
 
     for (var i = 0, l = els.length; i < l; ++i) {
@@ -124,8 +141,13 @@
     return result;
   }
   function indexOf(els, el) {
-    if (els && els.addEventListener) els = [els];
-    if (!els) els = [];
+    if (els) {
+      if (els.addEventListener) {
+        els = [els];
+      }
+    } else {
+      els = [];
+    }
 
     for (var i = 0, l = els.length; i < l; ++i) {
       if (els[i] === el) return i;

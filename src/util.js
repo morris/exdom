@@ -45,40 +45,70 @@ export function hasClass(els, className) {
 export const BREAK = {};
 
 export function forEach(els, fn) {
-  if (els && els.addEventListener) els = [els];
-  if (!els) els = [];
+  if (els) {
+    if (els.addEventListener) {
+      els = [els];
+    }
+  } else {
+    els = [];
+  }
+
   for (let i = 0, l = els.length; i < l; ++i) {
     if (fn(els[i], i) === BREAK) return els;
   }
+
   return els;
 }
 
 export function map(els, fn) {
-  if (els && els.addEventListener) els = [els];
-  if (!els) els = [];
+  if (els) {
+    if (els.addEventListener) {
+      els = [els];
+    }
+  } else {
+    els = [];
+  }
+
   const result = [];
+
   for (let i = 0, l = els.length; i < l; ++i) {
     result.push(fn(els[i], i));
   }
+
   return result;
 }
 
 export function filter(els, fn) {
-  if (els && els.addEventListener) els = [els];
-  if (!els) els = [];
+  if (els) {
+    if (els.addEventListener) {
+      els = [els];
+    }
+  } else {
+    els = [];
+  }
+
   const result = [];
+
   for (let i = 0, l = els.length; i < l; ++i) {
     if (fn(els[i], i)) result.push(els[i]);
   }
+
   return result;
 }
 
 export function indexOf(els, el) {
-  if (els && els.addEventListener) els = [els];
-  if (!els) els = [];
+  if (els) {
+    if (els.addEventListener) {
+      els = [els];
+    }
+  } else {
+    els = [];
+  }
+
   for (let i = 0, l = els.length; i < l; ++i) {
     if (els[i] === el) return i;
   }
+
   return -1;
 }
 
