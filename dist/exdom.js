@@ -91,37 +91,47 @@
     }).length === tmp.length;
   }
   var BREAK = {};
-  function forEach(list, fn) {
-    if (list && list.addEventListener) list = [list];
-    if (!list) list = [];
+  function forEach(els, fn) {
+    if (els && els.addEventListener) els = [els];
+    if (!els) els = [];
 
-    for (var i = 0, l = list.length; i < l; ++i) {
-      if (fn(list[i], i) === BREAK) return list;
+    for (var i = 0, l = els.length; i < l; ++i) {
+      if (fn(els[i], i) === BREAK) return els;
     }
 
-    return list;
+    return els;
   }
-  function map(list, fn) {
-    if (list && list.addEventListener) list = [list];
-    if (!list) list = [];
+  function map(els, fn) {
+    if (els && els.addEventListener) els = [els];
+    if (!els) els = [];
     var result = [];
 
-    for (var i = 0, l = list.length; i < l; ++i) {
-      result.push(fn(list[i], i));
+    for (var i = 0, l = els.length; i < l; ++i) {
+      result.push(fn(els[i], i));
     }
 
     return result;
   }
-  function filter(list, fn) {
-    if (list && list.addEventListener) list = [list];
-    if (!list) list = [];
+  function filter(els, fn) {
+    if (els && els.addEventListener) els = [els];
+    if (!els) els = [];
     var result = [];
 
-    for (var i = 0, l = list.length; i < l; ++i) {
-      if (fn(list[i], i)) result.push(list[i]);
+    for (var i = 0, l = els.length; i < l; ++i) {
+      if (fn(els[i], i)) result.push(els[i]);
     }
 
     return result;
+  }
+  function indexOf(els, el) {
+    if (els && els.addEventListener) els = [els];
+    if (!els) els = [];
+
+    for (var i = 0, l = els.length; i < l; ++i) {
+      if (els[i] === el) return i;
+    }
+
+    return -1;
   } //
 
   var _tempEl;
@@ -134,13 +144,13 @@
 
   function observe(els, options, extra) {
     var o = _objectSpread({}, typeof options === "function" ? {
-      action: options
+      handler: options
     } : options, typeof extra === "function" ? {
-      action: extra
+      handler: extra
     } : extra);
 
     var hasVolatile = false;
-    var types = (o.types || parseArgumentNames(o.action)).map(function (name) {
+    var types = (o.types || parseArgumentNames(o.handler)).map(function (name) {
       var full = name[0] === "_";
       var volatile = full || name[0] === "$";
       if (volatile) hasVolatile = true;
@@ -156,24 +166,31 @@
       var deferTimeout;
       types.forEach(function (type, index) {
         listen(el, type.name, function (e) {
-          if (!type.volatile) cache[index] = e.detail;
+          if (type.volatile) {
+            // delegation
+            if (typeof o.target === "string" && !hasClass(e.target, o.target) || o.target && indexOf(o.target, e.target) === -1) {
+              return;
+            }
+          } else {
+            cache[index] = e.detail;
+          }
 
           if (!hasVolatile || type.volatile) {
             if (o.defer) {
               clearTimeout(deferTimeout);
-              deferTimeout = setTimeout(applyAction, o.defer);
+              deferTimeout = setTimeout(callHandler, o.defer);
             } else {
-              applyAction();
+              callHandler();
             }
           }
 
-          function applyAction() {
+          function callHandler() {
             if (type.volatile) {
               var args = cache.slice(0);
               args[index] = type.full ? e : e.detail;
-              o.action.apply(null, args);
+              o.handler.apply(null, args);
             } else {
-              o.action.apply(null, cache);
+              o.handler.apply(null, cache);
             }
           }
         });
@@ -197,7 +214,7 @@
     });
   }
   function send(els, type, detail) {
-    if (!els || !els.ownerDocument && els.length === 0) return;
+    if (!els || !els.addEventListener && els.length === 0) return;
 
     var _getWindow = getWindow(els),
         CustomEvent = _getWindow.CustomEvent;
@@ -208,7 +225,7 @@
     }));
   }
   function emit(els, type, detail) {
-    if (!els || !els.ownerDocument && els.length === 0) return;
+    if (!els || !els.addEventListener && els.length === 0) return;
 
     var _getWindow2 = getWindow(els),
         CustomEvent = _getWindow2.CustomEvent;
@@ -456,7 +473,7 @@
     return proto;
   }
 
-  function request(els, options, extraOptions) {
+  function request(els, options, extra) {
     var _getWindow = getWindow(els),
         fetch = _getWindow.fetch;
 
@@ -466,9 +483,9 @@
 
     var req = _objectSpread({
       read: "auto"
-    }, options_, extraOptions, {
-      headers: buildHeaders(els, options_, extraOptions),
-      body: buildBody(els, options_, extraOptions)
+    }, options_, extra, {
+      headers: buildHeaders(els, options_, extra),
+      body: buildBody(els, options_, extra)
     });
 
     emit(els, "request", req);
@@ -506,12 +523,12 @@
       throw err;
     });
   }
-  function buildHeaders(context, options, extraOptions) {
+  function buildHeaders(context, options, extra) {
     var _getWindow2 = getWindow(context),
         Headers = _getWindow2.Headers,
         FormData = _getWindow2.FormData;
 
-    var req = _objectSpread({}, options, extraOptions);
+    var req = _objectSpread({}, options, extra);
 
     var headers = new Headers();
 
@@ -526,16 +543,16 @@
     Object.keys(options && options.headers || {}).forEach(function (key) {
       headers.set(key, options.headers[key]);
     });
-    Object.keys(extraOptions && extraOptions.headers || {}).forEach(function (key) {
-      headers.set(key, extraOptions.headers[key]);
+    Object.keys(extra && extra.headers || {}).forEach(function (key) {
+      headers.set(key, extra.headers[key]);
     });
     return headers;
   }
-  function buildBody(context, options, extraOptions) {
+  function buildBody(context, options, extra) {
     var _getWindow3 = getWindow(context),
         FormData = _getWindow3.FormData;
 
-    var body = extraOptions && extraOptions.body || options && options.body;
+    var body = extra && extra.body || options && options.body;
 
     if (_typeof(body) === "object" && !(body instanceof FormData)) {
       return JSON.stringify(options.body);
@@ -601,6 +618,7 @@
   exports.forEach = forEach;
   exports.map = map;
   exports.filter = filter;
+  exports.indexOf = indexOf;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -2,7 +2,7 @@
 import * as assert from "assert";
 import { JSDOM } from "jsdom";
 
-import { observe, send } from "../src";
+import { observe, send, emit } from "../src";
 
 describe("From the events module,", () => {
   describe("observe", () => {
@@ -26,7 +26,7 @@ describe("From the events module,", () => {
       ]);
     });
 
-    it("should observe events and call the handler once if defer is set", done => {
+    it("should observe events and call the handler with combined data if defer is set", done => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
       const test = dom.window.document.getElementById("test");
       const calls = [];
@@ -77,6 +77,54 @@ describe("From the events module,", () => {
 
       assert.deepStrictEqual(calls, [
         [1, 2, new dom.window.CustomEvent("baz", {})]
+      ]);
+    });
+
+    it("should validate the target option if given (volatile only)", () => {
+      const dom = new JSDOM(
+        `<!DOCTYPE html><div id="test"><p></p><p class="foo"></p></div>`
+      );
+      const test = dom.window.document.getElementById("test");
+      const calls = [];
+      const p = test.getElementsByTagName("p");
+
+      observe(test, { target: p }, ($foo, bar) => {
+        calls.push([$foo, bar]);
+      });
+
+      observe(test, { target: p[0] }, ($foo, bar) => {
+        calls.push([$foo, bar]);
+      });
+
+      observe(test, { target: "foo" }, ($foo, bar) => {
+        calls.push([$foo, bar]);
+      });
+
+      emit(test, "foo", 1);
+      emit(p, "foo", 2);
+      emit(p[0], "foo", 3);
+      emit(p[1], "foo", 4);
+
+      emit(test, "bar", 5);
+
+      emit(test, "foo", 1);
+      emit(p, "foo", 2);
+      emit(p[0], "foo", 3);
+      emit(p[1], "foo", 4);
+
+      assert.deepEqual(calls, [
+        [2, undefined],
+        [2, undefined],
+        [2, undefined],
+        [3, undefined],
+        [3, undefined],
+        [4, undefined],
+        [2, 5],
+        [2, 5],
+        [2, 5],
+        [3, 5],
+        [3, 5],
+        [4, 5]
       ]);
     });
   });

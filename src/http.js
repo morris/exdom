@@ -1,7 +1,7 @@
 import { emit } from "./events";
 import { getWindow } from "./util";
 
-export function request(els, options, extraOptions) {
+export function request(els, options, extra) {
   const { fetch } = getWindow(els);
 
   const options_ = typeof options === "string" ? { url: options } : options;
@@ -9,9 +9,9 @@ export function request(els, options, extraOptions) {
   const req = {
     read: "auto",
     ...options_,
-    ...extraOptions,
-    headers: buildHeaders(els, options_, extraOptions),
-    body: buildBody(els, options_, extraOptions)
+    ...extra,
+    headers: buildHeaders(els, options_, extra),
+    body: buildBody(els, options_, extra)
   };
 
   emit(els, "request", req);
@@ -49,10 +49,10 @@ export function request(els, options, extraOptions) {
     });
 }
 
-export function buildHeaders(context, options, extraOptions) {
+export function buildHeaders(context, options, extra) {
   const { Headers, FormData } = getWindow(context);
 
-  const req = { ...options, ...extraOptions };
+  const req = { ...options, ...extra };
 
   const headers = new Headers();
 
@@ -68,17 +68,17 @@ export function buildHeaders(context, options, extraOptions) {
     headers.set(key, options.headers[key]);
   });
 
-  Object.keys((extraOptions && extraOptions.headers) || {}).forEach(key => {
-    headers.set(key, extraOptions.headers[key]);
+  Object.keys((extra && extra.headers) || {}).forEach(key => {
+    headers.set(key, extra.headers[key]);
   });
 
   return headers;
 }
 
-export function buildBody(context, options, extraOptions) {
+export function buildBody(context, options, extra) {
   const { FormData } = getWindow(context);
 
-  const body = (extraOptions && extraOptions.body) || (options && options.body);
+  const body = (extra && extra.body) || (options && options.body);
 
   if (typeof body === "object" && !(body instanceof FormData)) {
     return JSON.stringify(options.body);

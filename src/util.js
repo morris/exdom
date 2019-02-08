@@ -44,33 +44,42 @@ export function hasClass(els, className) {
 
 export const BREAK = {};
 
-export function forEach(list, fn) {
-  if (list && list.addEventListener) list = [list];
-  if (!list) list = [];
-  for (let i = 0, l = list.length; i < l; ++i) {
-    if (fn(list[i], i) === BREAK) return list;
+export function forEach(els, fn) {
+  if (els && els.addEventListener) els = [els];
+  if (!els) els = [];
+  for (let i = 0, l = els.length; i < l; ++i) {
+    if (fn(els[i], i) === BREAK) return els;
   }
-  return list;
+  return els;
 }
 
-export function map(list, fn) {
-  if (list && list.addEventListener) list = [list];
-  if (!list) list = [];
+export function map(els, fn) {
+  if (els && els.addEventListener) els = [els];
+  if (!els) els = [];
   const result = [];
-  for (let i = 0, l = list.length; i < l; ++i) {
-    result.push(fn(list[i], i));
+  for (let i = 0, l = els.length; i < l; ++i) {
+    result.push(fn(els[i], i));
   }
   return result;
 }
 
-export function filter(list, fn) {
-  if (list && list.addEventListener) list = [list];
-  if (!list) list = [];
+export function filter(els, fn) {
+  if (els && els.addEventListener) els = [els];
+  if (!els) els = [];
   const result = [];
-  for (let i = 0, l = list.length; i < l; ++i) {
-    if (fn(list[i], i)) result.push(list[i]);
+  for (let i = 0, l = els.length; i < l; ++i) {
+    if (fn(els[i], i)) result.push(els[i]);
   }
   return result;
+}
+
+export function indexOf(els, el) {
+  if (els && els.addEventListener) els = [els];
+  if (!els) els = [];
+  for (let i = 0, l = els.length; i < l; ++i) {
+    if (els[i] === el) return i;
+  }
+  return -1;
 }
 
 //

@@ -1,14 +1,14 @@
-import { forEach, getWindow } from "./util";
+import { forEach, getWindow, hasClass, indexOf } from "./util";
 
 export function observe(els, options, extra) {
   const o = {
-    ...(typeof options === "function" ? { action: options } : options),
-    ...(typeof extra === "function" ? { action: extra } : extra)
+    ...(typeof options === "function" ? { handler: options } : options),
+    ...(typeof extra === "function" ? { handler: extra } : extra)
   };
 
   let hasVolatile = false;
 
-  const types = (o.types || parseArgumentNames(o.action)).map(name => {
+  const types = (o.types || parseArgumentNames(o.handler)).map(name => {
     const full = name[0] === "_";
     const volatile = full || name[0] === "$";
 
@@ -29,24 +29,34 @@ export function observe(els, options, extra) {
 
     types.forEach((type, index) => {
       listen(el, type.name, e => {
-        if (!type.volatile) cache[index] = e.detail;
+        if (type.volatile) {
+          // delegation
+          if (
+            (typeof o.target === "string" && !hasClass(e.target, o.target)) ||
+            (o.target && indexOf(o.target, e.target) === -1)
+          ) {
+            return;
+          }
+        } else {
+          cache[index] = e.detail;
+        }
 
         if (!hasVolatile || type.volatile) {
           if (o.defer) {
             clearTimeout(deferTimeout);
-            deferTimeout = setTimeout(applyAction, o.defer);
+            deferTimeout = setTimeout(callHandler, o.defer);
           } else {
-            applyAction();
+            callHandler();
           }
         }
 
-        function applyAction() {
+        function callHandler() {
           if (type.volatile) {
             const args = cache.slice(0);
             args[index] = type.full ? e : e.detail;
-            o.action.apply(null, args);
+            o.handler.apply(null, args);
           } else {
-            o.action.apply(null, cache);
+            o.handler.apply(null, cache);
           }
         }
       });
@@ -77,7 +87,7 @@ export function listen(els, type, listener, options) {
 }
 
 export function send(els, type, detail) {
-  if (!els || (!els.ownerDocument && els.length === 0)) return;
+  if (!els || (!els.addEventListener && els.length === 0)) return;
 
   const { CustomEvent } = getWindow(els);
 
@@ -91,7 +101,7 @@ export function send(els, type, detail) {
 }
 
 export function emit(els, type, detail) {
-  if (!els || (!els.ownerDocument && els.length === 0)) return;
+  if (!els || (!els.addEventListener && els.length === 0)) return;
 
   const { CustomEvent } = getWindow(els);
 
