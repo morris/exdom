@@ -1,0 +1,4 @@
+#!/bin/sh
+set -ex
+COMMIT_TAGS="BREAK|FEAT|FIX|PERF|CODE|TEST|DEPS|CHORE|DOCS"
+grep -qE "$COMMIT_TAGS" "$1" || { echo "Error: Commit message must contain one of $COMMIT_TAGS"; exit 1; }

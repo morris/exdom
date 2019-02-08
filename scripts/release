@@ -1,0 +1,4 @@
+#!/bin/sh
+set -ex
+sh scripts/tag
+git push --tags
