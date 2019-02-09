@@ -332,72 +332,35 @@
     return value + "";
   }
 
-  function setChildren(els, optionsArray, extra) {
+  function keepChildren(els, n) {
     forEach(els, function (el) {
-      var offset = extra && extra.index || 0;
-      var tail = extra && extra.tail || 0;
-      optionsArray.forEach(function (options, index) {
-        setChild(el, options, _objectSpread({}, extra, {
-          index: offset + index,
-          tail: tail
-        }));
-      }); // remove obsolete children
-
-      while (el.children.length - optionsArray.length - offset > tail) {
-        el.removeChild(el.lastElementChild);
-      }
+      el.__appendOffset = typeof el.__appendOffset === "number" ? el.__appendOffset + n : n;
     });
   }
-  function setChild(els, options, extra) {
+  function appendChildren(els, optionsArray, extra) {
+    return optionsArray.forEach(function (options) {
+      appendChild(els, options, extra);
+    });
+  }
+  function appendChild(els, options, extra) {
     var o = _objectSpread({}, typeof options === "string" ? {
       html: options
-    } : options, extra);
+    } : options, typeof extra === "string" ? {
+      html: extra
+    } : extra);
 
-    var index = o.index || 0;
-    var tail = o.tail || 0;
     var compat = o.compatible || compatible;
+    var CustomEvent, proto;
     forEach(els, function (el) {
-      var _getWindow = getWindow(el),
-          Event = _getWindow.Event,
-          CustomEvent = _getWindow.CustomEvent;
+      if (!CustomEvent) CustomEvent = getWindow(el).CustomEvent;
+      if (!proto) proto = getProto(el, o.html); // reconciliation
 
-      var proto = o.proto || o.html && getProto(el, o.html);
-      var maxIndex = el.children.length - tail;
+      var offsetChild = el.children[el.__appendOffset || 0];
+      var child = offsetChild;
 
-      if (index > maxIndex) {
-        throw new Error("Cannot render child element at index ".concat(index, " of ").concat(el.children.length, " children and tail ").concat(tail));
-      } // reconciliation
-
-
-      var childAtIndex = el.children[index];
-      var child;
-
-      if (!proto) {
-        // if no prototype element was given,
-        // there must be an existing child to init/update
-        if (!childAtIndex) {
-          throw new Error("Cannot render new child element at index ".concat(index, " without base html"));
-        }
-
-        child = childAtIndex;
-      } else if (index === maxIndex) {
-        // otherwise if index is maxIndex, must insert
+      if (!offsetChild || !compat(offsetChild, proto)) {
         child = cloneProto(proto);
-        el.insertBefore(child, childAtIndex);
-      } else if (!compat(childAtIndex, proto)) {
-        // otherwise, index < maxIndex <= el.children.length is guaranteed,
-        // so childAtIndex is too;
-        // must replace unless existing child is compatible
-        // also send destroy event to existing child
-        child = cloneProto(proto);
-        childAtIndex.dispatchEvent(new Event("destroy", {
-          bubbles: false
-        }));
-        el.replaceChild(child, childAtIndex);
-      } else {
-        // finally, if child is compatible with prototype, dont insert/replace,
-        // just init and update existing child
-        child = childAtIndex;
+        el.insertBefore(child, offsetChild);
       } // init child once
 
 
@@ -413,6 +376,23 @@
           bubbles: false
         }));
       }
+
+      el.__appendOffset = typeof el.__appendOffset === "number" ? el.__appendOffset + 1 : 1;
+    });
+  }
+  function closeChildren(els) {
+    var Event;
+    forEach(els, function (el) {
+      if (!Event) Event = getWindow(el).Event;
+
+      while (el.children.length > el.__appendOffset) {
+        el.lastElementChild.dispatchEvent(new Event("destroy", {
+          bubbles: false
+        }));
+        el.removeChild(el.lastElementChild);
+      }
+
+      el.__appendOffset = 0;
     });
   }
   function setText(els, text) {
@@ -621,8 +601,10 @@
   exports.getValue = getValue;
   exports.setValue = setValue;
   exports.toValue = toValue;
-  exports.setChildren = setChildren;
-  exports.setChild = setChild;
+  exports.keepChildren = keepChildren;
+  exports.appendChildren = appendChildren;
+  exports.appendChild = appendChild;
+  exports.closeChildren = closeChildren;
   exports.setText = setText;
   exports.setHtml = setHtml;
   exports.setAttr = setAttr;
