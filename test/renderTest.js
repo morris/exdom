@@ -3,17 +3,23 @@ import * as assert from "assert";
 import { JSDOM } from "jsdom";
 
 import { listen } from "../src/events";
-import { setChildren, setChild, setHtml } from "../src/render";
+import {
+  appendChildren,
+  appendChild,
+  closeChildren,
+  setHtml
+} from "../src/render";
 
 describe("From the render module,", () => {
-  describe("setChild", () => {
-    it("should render a child", () => {
+  describe("appendChild", () => {
+    it("should append a child", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
       let init = false;
       let pass;
 
-      setChild(
-        dom.window.document.getElementById("test"),
+      appendChild(
+        test,
         {
           html: "<p>test</p>",
           init: el => {
@@ -40,9 +46,10 @@ describe("From the render module,", () => {
     });
   });
 
-  describe("setChildren", () => {
-    it("should render children", () => {
+  describe("appendChildren", () => {
+    it("should append multiple children", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
 
       const options = {
         html: "<p>lel</p>",
@@ -53,8 +60,8 @@ describe("From the render module,", () => {
         }
       };
 
-      setChildren(
-        dom.window.document.getElementById("test"),
+      appendChildren(
+        test,
         [
           { test: "foo" },
           { test: "bar" },
@@ -66,13 +73,12 @@ describe("From the render module,", () => {
         }))
       );
 
-      assert.equal(
-        dom.window.document.getElementById("test").innerHTML,
-        "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>"
-      );
+      closeChildren(test);
 
-      setChildren(
-        dom.window.document.getElementById("test"),
+      assert.equal(test.innerHTML, "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>");
+
+      appendChildren(
+        test,
         [
           { test: "foo" },
           { test: "wow" },
@@ -85,13 +91,15 @@ describe("From the render module,", () => {
         }))
       );
 
+      closeChildren(test);
+
       assert.equal(
-        dom.window.document.getElementById("test").innerHTML,
+        test.innerHTML,
         "<p>foo</p><p>wow</p><p>baz</p><p>lol</p><p>lel</p>"
       );
 
-      setChildren(
-        dom.window.document.getElementById("test"),
+      appendChildren(
+        test,
         [
           { test: "foo", html: "<div></div>" },
           { test: "wow" },
@@ -105,14 +113,17 @@ describe("From the render module,", () => {
         }))
       );
 
+      closeChildren(test);
+
       assert.equal(
-        dom.window.document.getElementById("test").innerHTML,
+        test.innerHTML,
         '<div>foo</div><p>wow</p><p class="x"></p><p>lol</p>'
       );
     });
 
     it("should remove obsolete children", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
 
       const options = {
         html: "<p>lel</p>",
@@ -123,8 +134,8 @@ describe("From the render module,", () => {
         }
       };
 
-      setChildren(
-        dom.window.document.getElementById("test"),
+      appendChildren(
+        test,
         [
           { test: "foo" },
           { test: "bar" },
@@ -136,23 +147,21 @@ describe("From the render module,", () => {
         }))
       );
 
-      assert.equal(
-        dom.window.document.getElementById("test").innerHTML,
-        "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>"
-      );
+      closeChildren(test);
 
-      setChildren(
-        dom.window.document.getElementById("test"),
+      assert.equal(test.innerHTML, "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>");
+
+      appendChildren(
+        test,
         [{ test: "foo" }, { test: "bar" }].map(pass => ({
           ...options,
           pass
         }))
       );
 
-      assert.equal(
-        dom.window.document.getElementById("test").innerHTML,
-        "<p>foo</p><p>bar</p>"
-      );
+      closeChildren(test);
+
+      assert.equal(test.innerHTML, "<p>foo</p><p>bar</p>");
     });
   });
 });

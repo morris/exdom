@@ -1,82 +1,39 @@
 import { forEach, parseEl, getWindow } from "./util";
 
-export function setChildren(els, optionsArray, extra) {
+export function keepChildren(els, n) {
   forEach(els, el => {
-    const offset = (extra && extra.index) || 0;
-    const tail = (extra && extra.tail) || 0;
-
-    optionsArray.forEach((options, index) => {
-      setChild(el, options, {
-        ...extra,
-        index: offset + index,
-        tail
-      });
-    });
-
-    // remove obsolete children
-    while (el.children.length - optionsArray.length - offset > tail) {
-      el.removeChild(el.lastElementChild);
-    }
+    el.__appendOffset =
+      typeof el.__appendOffset === "number" ? el.__appendOffset + n : n;
   });
 }
 
-export function setChild(els, options, extra) {
+export function appendChildren(els, optionsArray, extra) {
+  return optionsArray.forEach(options => {
+    appendChild(els, options, extra);
+  });
+}
+
+export function appendChild(els, options, extra) {
   const o = {
     ...(typeof options === "string" ? { html: options } : options),
-    ...extra
+    ...(typeof extra === "string" ? { html: extra } : extra)
   };
 
-  const index = o.index || 0;
-  const tail = o.tail || 0;
   const compat = o.compatible || compatible;
 
-  forEach(els, el => {
-    const { Event, CustomEvent } = getWindow(el);
-    const proto = o.proto || (o.html && getProto(el, o.html));
-    const maxIndex = el.children.length - tail;
+  let CustomEvent, proto;
 
-    if (index > maxIndex) {
-      throw new Error(
-        `Cannot render child element at index ${index} of ${
-          el.children.length
-        } children and tail ${tail}`
-      );
-    }
+  forEach(els, el => {
+    if (!CustomEvent) CustomEvent = getWindow(el).CustomEvent;
+    if (!proto) proto = getProto(el, o.html);
 
     // reconciliation
-    const childAtIndex = el.children[index];
-    let child;
+    const offsetChild = el.children[el.__appendOffset || 0];
+    let child = offsetChild;
 
-    if (!proto) {
-      // if no prototype element was given,
-      // there must be an existing child to init/update
-      if (!childAtIndex) {
-        throw new Error(
-          `Cannot render new child element at index ${index} without base html`
-        );
-      }
-
-      child = childAtIndex;
-    } else if (index === maxIndex) {
-      // otherwise if index is maxIndex, must insert
+    if (!offsetChild || !compat(offsetChild, proto)) {
       child = cloneProto(proto);
-      el.insertBefore(child, childAtIndex);
-    } else if (!compat(childAtIndex, proto)) {
-      // otherwise, index < maxIndex <= el.children.length is guaranteed,
-      // so childAtIndex is too;
-      // must replace unless existing child is compatible
-      // also send destroy event to existing child
-      child = cloneProto(proto);
-      childAtIndex.dispatchEvent(
-        new Event("destroy", {
-          bubbles: false
-        })
-      );
-      el.replaceChild(child, childAtIndex);
-    } else {
-      // finally, if child is compatible with prototype, dont insert/replace,
-      // just init and update existing child
-      child = childAtIndex;
+      el.insertBefore(child, offsetChild);
     }
 
     // init child once
@@ -94,6 +51,27 @@ export function setChild(els, options, extra) {
         })
       );
     }
+
+    el.__appendOffset =
+      typeof el.__appendOffset === "number" ? el.__appendOffset + 1 : 1;
+  });
+}
+
+export function closeChildren(els) {
+  let Event;
+
+  forEach(els, el => {
+    if (!Event) Event = getWindow(el).Event;
+
+    while (el.children.length > el.__appendOffset) {
+      el.lastElementChild.dispatchEvent(
+        new Event("destroy", {
+          bubbles: false
+        })
+      );
+      el.removeChild(el.lastElementChild);
+    }
+    el.__appendOffset = 0;
   });
 }
 
