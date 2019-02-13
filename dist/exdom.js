@@ -592,6 +592,46 @@
     }
   }
 
+  function backupSession(els, key, def) {
+    return backup(els, "sessionStorage", key, def);
+  }
+  function backupLocal(els, key, def) {
+    return backup(els, "localStorage", key, def);
+  }
+  function backup(els, storageName, key, def) {
+    if (_typeof(key) === "object") {
+      return Object.keys(key).forEach(function (k) {
+        backup(els, storageName, k, key[k]);
+      });
+    }
+
+    var storage = getWindow(els)[storageName];
+    listen(els, key, function (e) {
+      if (e.__backup) return;
+      e.__backup = true;
+      var raw = JSON.stringify(e.detail);
+
+      if (raw !== storage[key]) {
+        storage[key] = raw;
+      }
+    });
+    listen(els, "readStorage", function () {
+      var raw = storage[key];
+
+      if (typeof raw === "string") {
+        try {
+          return emit(els, key, JSON.parse(raw));
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.warn(err);
+        }
+      }
+
+      emit(els, key, def);
+    });
+    emit(els, "readStorage");
+  }
+
   exports.observe = observe;
   exports.relay = relay;
   exports.listen = listen;
@@ -623,6 +663,9 @@
   exports.map = map;
   exports.filter = filter;
   exports.indexOf = indexOf;
+  exports.backupSession = backupSession;
+  exports.backupLocal = backupLocal;
+  exports.backup = backup;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
