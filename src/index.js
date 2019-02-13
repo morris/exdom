@@ -3,3 +3,4 @@ export * from "./forms";
 export * from "./render";
 export * from "./http";
 export * from "./util";
+export * from "./storage";
