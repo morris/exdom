@@ -494,7 +494,7 @@
     var res, body;
     return fetch(req.url, req).then(function (r) {
       res = r;
-      emit(els, "res", {
+      emit(els, "response", {
         req: req,
         res: res
       });
