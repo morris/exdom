@@ -22,7 +22,7 @@ export function request(els, options, extra) {
     .then(r => {
       res = r;
 
-      emit(els, "res", { req, res });
+      emit(els, "response", { req, res });
 
       if (!req.read) return;
 

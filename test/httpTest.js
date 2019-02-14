@@ -5,11 +5,11 @@ import express from "express";
 import { json as bodyParserJson } from "body-parser";
 import { readFileSync } from "fs";
 
-import { request } from "../src/http";
+import { request, observe } from "../src";
 
 describe("From the http module,", () => {
   describe("request", () => {
-    let app, server, dom;
+    let app, server, dom, el;
 
     before(done => {
       app = express();
@@ -45,15 +45,28 @@ describe("From the http module,", () => {
       `,
         { url: "http://localhost:3999", runScripts: "dangerously" }
       );
+
+      el = dom.window.document.getElementById("test");
     });
 
     it("should get json (auto)", async () => {
-      const { req, res, body } = await request(
-        dom.window.document.getElementById("test"),
-        {
-          url: "http://localhost:3999/hello"
-        }
-      );
+      const events = [];
+
+      observe(el, $request => {
+        events.push($request);
+      });
+
+      observe(el, $response => {
+        events.push($response);
+      });
+
+      observe(el, $fullResponse => {
+        events.push($fullResponse);
+      });
+
+      const { req, res, body } = await request(el, {
+        url: "http://localhost:3999/hello"
+      });
 
       assert.deepEqual(req, {
         url: "http://localhost:3999/hello",
@@ -69,20 +82,21 @@ describe("From the http module,", () => {
       assert.deepEqual(body, {
         hello: "world"
       });
+
+      assert.equal(events.length, 3);
+      assert.ok(events[1].req && events[1].res);
+      assert.ok(events[2].req && events[2].res && events[2].body);
     });
 
     it("should post json", async () => {
-      const { req, body } = await request(
-        dom.window.document.getElementById("test"),
-        {
-          method: "POST",
-          url: "http://localhost:3999/echo",
-          body: {
-            foo: "bar"
-          },
-          read: "json"
-        }
-      );
+      const { req, body } = await request(el, {
+        method: "POST",
+        url: "http://localhost:3999/echo",
+        body: {
+          foo: "bar"
+        },
+        read: "json"
+      });
 
       assert.deepEqual(req, {
         method: "POST",
@@ -103,9 +117,14 @@ describe("From the http module,", () => {
     });
 
     it("should handle errors", async () => {
+      const events = [];
+      observe(el, $requestError => {
+        events.push($requestError);
+      });
+
       try {
         await request(
-          dom.window.document.getElementById("test"),
+          el,
           {
             url: "http://localhost:3999/not-found",
             headers: {
@@ -133,6 +152,8 @@ describe("From the http module,", () => {
         assert.equal(err.res.status, 404);
         assert.ok(err.message.indexOf("404") >= 0);
         assert.deepEqual(err.body, "<h1>Not found</h1>");
+        assert.equal(events.length, 1);
+        assert.equal(events[0].message, "Status code error 404");
       }
     });
 
