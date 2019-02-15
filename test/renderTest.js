@@ -6,7 +6,7 @@ import { listen } from "../src/events";
 import {
   appendChildren,
   appendChild,
-  closeChildren,
+  endChildren,
   setHtml
 } from "../src/render";
 
@@ -73,7 +73,7 @@ describe("From the render module,", () => {
         }))
       );
 
-      closeChildren(test);
+      endChildren(test);
 
       assert.equal(test.innerHTML, "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>");
 
@@ -91,7 +91,7 @@ describe("From the render module,", () => {
         }))
       );
 
-      closeChildren(test);
+      endChildren(test);
 
       assert.equal(
         test.innerHTML,
@@ -113,7 +113,7 @@ describe("From the render module,", () => {
         }))
       );
 
-      closeChildren(test);
+      endChildren(test);
 
       assert.equal(
         test.innerHTML,
@@ -147,7 +147,7 @@ describe("From the render module,", () => {
         }))
       );
 
-      closeChildren(test);
+      endChildren(test);
 
       assert.equal(test.innerHTML, "<p>foo</p><p>bar</p><p>baz</p><p>lol</p>");
 
@@ -159,7 +159,7 @@ describe("From the render module,", () => {
         }))
       );
 
-      closeChildren(test);
+      endChildren(test);
 
       assert.equal(test.innerHTML, "<p>foo</p><p>bar</p>");
     });

@@ -1,4 +1,4 @@
-import { forEach, getWindow, hasClass, indexOf } from "./util";
+import { forEach, getWindow, getClosestOfClass, contain } from "./util";
 
 export function observe(els, options, extra) {
   const o = {
@@ -31,10 +31,9 @@ export function observe(els, options, extra) {
       listen(el, type.name, e => {
         if (type.volatile) {
           // delegation
-          if (
-            (typeof o.target === "string" && !hasClass(e.target, o.target)) ||
-            (o.target && indexOf(o.target, e.target) === -1)
-          ) {
+          if (o.targetClass && !getClosestOfClass(e.target, o.targetClass)) {
+            return;
+          } else if (o.target && !contain(o.target, e.target)) {
             return;
           }
         } else {

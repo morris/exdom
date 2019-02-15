@@ -82,7 +82,7 @@ describe("From the events module,", () => {
 
     it("should validate the target option if given (volatile only)", () => {
       const dom = new JSDOM(
-        `<!DOCTYPE html><div id="test"><p></p><p class="foo"></p></div>`
+        `<!DOCTYPE html><div id="test">div#test<p>p</p><p class="foo">p.foo</p></div>`
       );
       const test = dom.window.document.getElementById("test");
       const calls = [];
@@ -96,7 +96,7 @@ describe("From the events module,", () => {
         calls.push([$foo, bar]);
       });
 
-      observe(test, { target: "foo" }, ($foo, bar) => {
+      observe(test, { targetClass: "foo" }, ($foo, bar) => {
         calls.push([$foo, bar]);
       });
 
@@ -116,14 +116,18 @@ describe("From the events module,", () => {
         [2, undefined],
         [2, undefined],
         [2, undefined],
+        [2, undefined],
         [3, undefined],
         [3, undefined],
+        [4, undefined],
         [4, undefined],
         [2, 5],
         [2, 5],
         [2, 5],
+        [2, 5],
         [3, 5],
         [3, 5],
+        [4, 5],
         [4, 5]
       ]);
     });

@@ -64,6 +64,30 @@
     });
     return refs;
   }
+  function getClosestOfClass(els, className) {
+    var el = firstOf(els);
+    if (!el) return;
+    var current = el;
+
+    while (current) {
+      if (hasClass(current, className)) return current;
+      current = current.parentNode;
+    }
+  }
+  function contain(els, target) {
+    var els_ = listOf(els);
+
+    for (var i = 0, l = els_.length; i < l; ++i) {
+      var current = target;
+
+      while (current) {
+        if (current === els_[i]) return true;
+        current = current.parentNode;
+      }
+    }
+
+    return false;
+  }
   function escapeHtml(context, text) {
     var tempEl = getTempEl(context);
     tempEl.innerText = text;
@@ -92,75 +116,63 @@
   }
   var BREAK = {};
   function forEach(els, fn) {
-    if (els) {
-      if (els.addEventListener) {
-        els = [els];
-      }
-    } else {
-      els = [];
+    var els_ = listOf(els);
+
+    for (var i = 0, l = els_.length; i < l; ++i) {
+      if (fn(els_[i], i) === BREAK) return els_;
     }
 
-    for (var i = 0, l = els.length; i < l; ++i) {
-      if (fn(els[i], i) === BREAK) return els;
-    }
-
-    return els;
+    return els_;
   }
   function map(els, fn) {
-    if (els) {
-      if (els.addEventListener) {
-        els = [els];
-      }
-    } else {
-      els = [];
-    }
-
+    var els_ = listOf(els);
     var result = [];
 
-    for (var i = 0, l = els.length; i < l; ++i) {
-      result.push(fn(els[i], i));
+    for (var i = 0, l = els_.length; i < l; ++i) {
+      result.push(fn(els_[i], i));
     }
 
     return result;
   }
   function filter(els, fn) {
-    if (els) {
-      if (els.addEventListener) {
-        els = [els];
-      }
-    } else {
-      els = [];
-    }
-
+    var els_ = listOf(els);
     var result = [];
 
-    for (var i = 0, l = els.length; i < l; ++i) {
-      if (fn(els[i], i)) result.push(els[i]);
+    for (var i = 0, l = els_.length; i < l; ++i) {
+      var el = els_[i];
+      if (fn(el, i)) result.push(el);
     }
 
     return result;
   }
   function indexOf(els, el) {
-    if (els) {
-      if (els.addEventListener) {
-        els = [els];
-      }
-    } else {
-      els = [];
-    }
+    var els_ = listOf(els);
 
-    for (var i = 0, l = els.length; i < l; ++i) {
-      if (els[i] === el) return i;
+    for (var i = 0, l = els_.length; i < l; ++i) {
+      if (els_[i] === el) return i;
     }
 
     return -1;
+  }
+  function listOf(els) {
+    if (!els) return [];
+    if (els.addEventListener) return [els];
+    return els;
+  }
+  function firstOf(els) {
+    if (!els) return;
+    if (els.addEventListener) return els;
+    return els[0];
   } //
 
   var _tempEl;
 
   function getTempEl(context) {
-    var document = context.ownerDocument || context[0].ownerDocument;
-    if (!_tempEl) _tempEl = document.createElement("div");
+    if (!_tempEl) {
+      var document = context.ownerDocument || context[0].ownerDocument;
+      _tempEl = document.createElement("div");
+    }
+
     return _tempEl;
   }
 
@@ -190,7 +202,9 @@
         listen(el, type.name, function (e) {
           if (type.volatile) {
             // delegation
-            if (typeof o.target === "string" && !hasClass(e.target, o.target) || o.target && indexOf(o.target, e.target) === -1) {
+            if (o.targetClass && !getClosestOfClass(e.target, o.targetClass)) {
+              return;
+            } else if (o.target && !contain(o.target, e.target)) {
               return;
             }
           } else {
@@ -274,7 +288,7 @@
   }
 
   function getValue(els) {
-    var el = els && els.addEventListener ? els : els[0];
+    var el = firstOf(els);
     if (!el) return;
 
     switch (el.tagName === "INPUT" ? el.type : el.tagName) {
@@ -332,17 +346,25 @@
     return value + "";
   }
 
+  function startChildren(els, offset) {
+    forEach(els, function (el) {
+      el.__appendOffset = offset || 0;
+    });
+  }
   function keepChildren(els, n) {
     forEach(els, function (el) {
       el.__appendOffset = typeof el.__appendOffset === "number" ? el.__appendOffset + n : n;
     });
   }
   function appendChildren(els, optionsArray, extra) {
-    return optionsArray.forEach(function (options) {
-      appendChild(els, options, extra);
+    return optionsArray.map(function (options) {
+      return appendChild(els, options, extra);
     });
   }
   function appendChild(els, options, extra) {
+    var el = firstOf(els);
+    if (!el) return;
+
     var o = _objectSpread({}, typeof options === "string" ? {
       html: options
     } : options, typeof extra === "string" ? {
@@ -350,37 +372,38 @@
     } : extra);
 
     var compat = o.compatible || compatible;
-    var CustomEvent, proto;
-    forEach(els, function (el) {
-      if (!CustomEvent) CustomEvent = getWindow(el).CustomEvent;
-      if (!proto) proto = getProto(el, o.html); // reconciliation
 
-      var offsetChild = el.children[el.__appendOffset || 0];
-      var child = offsetChild;
+    var _getWindow = getWindow(el),
+        CustomEvent = _getWindow.CustomEvent;
 
-      if (!offsetChild || !compat(offsetChild, proto)) {
-        child = cloneProto(proto);
-        el.insertBefore(child, offsetChild);
-      } // init child once
+    var proto = getProto(el, o.html); // reconciliation
 
+    var offsetChild = el.children[el.__appendOffset || 0];
+    var child = offsetChild;
 
-      if (o.init && !child.__init) {
-        child.__init = true;
-        o.init(child);
-      } // pass data, if any
+    if (!offsetChild || !compat(offsetChild, proto)) {
+      child = cloneProto(proto);
+      el.insertBefore(child, offsetChild);
+    } // init child once
 
 
-      if (o.pass) {
-        child.dispatchEvent(new CustomEvent("pass", {
-          detail: o.pass,
-          bubbles: false
-        }));
-      }
+    if (o.init && !child.__init) {
+      child.__init = true;
+      o.init(child);
+    } // pass data, if any
 
-      el.__appendOffset = typeof el.__appendOffset === "number" ? el.__appendOffset + 1 : 1;
-    });
+
+    if (o.pass) {
+      child.dispatchEvent(new CustomEvent("pass", {
+        detail: o.pass,
+        bubbles: false
+      }));
+    }
+
+    el.__appendOffset = typeof el.__appendOffset === "number" ? el.__appendOffset + 1 : 1;
+    return child;
   }
-  function closeChildren(els) {
+  function endChildren(els) {
     var Event;
     forEach(els, function (el) {
       if (!Event) Event = getWindow(el).Event;
@@ -629,7 +652,7 @@
 
       emit(els, key, def);
     });
-    emit(els, "readStorage");
+    send(els, "readStorage");
   }
 
   exports.observe = observe;
@@ -641,10 +664,11 @@
   exports.getValue = getValue;
   exports.setValue = setValue;
   exports.toValue = toValue;
+  exports.startChildren = startChildren;
   exports.keepChildren = keepChildren;
   exports.appendChildren = appendChildren;
   exports.appendChild = appendChild;
-  exports.closeChildren = closeChildren;
+  exports.endChildren = endChildren;
   exports.setText = setText;
   exports.setHtml = setHtml;
   exports.setAttr = setAttr;
@@ -654,6 +678,8 @@
   exports.buildBody = buildBody;
   exports.readResponse = readResponse;
   exports.getRefs = getRefs;
+  exports.getClosestOfClass = getClosestOfClass;
+  exports.contain = contain;
   exports.escapeHtml = escapeHtml;
   exports.parseEl = parseEl;
   exports.getWindow = getWindow;
@@ -663,6 +689,8 @@
   exports.map = map;
   exports.filter = filter;
   exports.indexOf = indexOf;
+  exports.listOf = listOf;
+  exports.firstOf = firstOf;
   exports.backupSession = backupSession;
   exports.backupLocal = backupLocal;
   exports.backup = backup;

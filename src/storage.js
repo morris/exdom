@@ -1,4 +1,4 @@
-import { listen, emit } from "./events";
+import { listen, emit, send } from "./events";
 import { getWindow } from "./util";
 
 export function backupSession(els, key, def) {
@@ -44,5 +44,5 @@ export function backup(els, storageName, key, def) {
     emit(els, key, def);
   });
 
-  emit(els, "readStorage");
+  send(els, "readStorage");
 }

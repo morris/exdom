@@ -1,4 +1,10 @@
-import { forEach, parseEl, getWindow } from "./util";
+import { forEach, firstOf, parseEl, getWindow } from "./util";
+
+export function startChildren(els, offset) {
+  forEach(els, el => {
+    el.__appendOffset = offset || 0;
+  });
+}
 
 export function keepChildren(els, n) {
   forEach(els, el => {
@@ -8,56 +14,55 @@ export function keepChildren(els, n) {
 }
 
 export function appendChildren(els, optionsArray, extra) {
-  return optionsArray.forEach(options => {
-    appendChild(els, options, extra);
-  });
+  return optionsArray.map(options => appendChild(els, options, extra));
 }
 
 export function appendChild(els, options, extra) {
+  const el = firstOf(els);
+
+  if (!el) return;
+
   const o = {
     ...(typeof options === "string" ? { html: options } : options),
     ...(typeof extra === "string" ? { html: extra } : extra)
   };
 
   const compat = o.compatible || compatible;
+  const { CustomEvent } = getWindow(el);
+  const proto = getProto(el, o.html);
 
-  let CustomEvent, proto;
+  // reconciliation
+  const offsetChild = el.children[el.__appendOffset || 0];
+  let child = offsetChild;
 
-  forEach(els, el => {
-    if (!CustomEvent) CustomEvent = getWindow(el).CustomEvent;
-    if (!proto) proto = getProto(el, o.html);
+  if (!offsetChild || !compat(offsetChild, proto)) {
+    child = cloneProto(proto);
+    el.insertBefore(child, offsetChild);
+  }
 
-    // reconciliation
-    const offsetChild = el.children[el.__appendOffset || 0];
-    let child = offsetChild;
+  // init child once
+  if (o.init && !child.__init) {
+    child.__init = true;
+    o.init(child);
+  }
 
-    if (!offsetChild || !compat(offsetChild, proto)) {
-      child = cloneProto(proto);
-      el.insertBefore(child, offsetChild);
-    }
+  // pass data, if any
+  if (o.pass) {
+    child.dispatchEvent(
+      new CustomEvent("pass", {
+        detail: o.pass,
+        bubbles: false
+      })
+    );
+  }
 
-    // init child once
-    if (o.init && !child.__init) {
-      child.__init = true;
-      o.init(child);
-    }
+  el.__appendOffset =
+    typeof el.__appendOffset === "number" ? el.__appendOffset + 1 : 1;
 
-    // pass data, if any
-    if (o.pass) {
-      child.dispatchEvent(
-        new CustomEvent("pass", {
-          detail: o.pass,
-          bubbles: false
-        })
-      );
-    }
-
-    el.__appendOffset =
-      typeof el.__appendOffset === "number" ? el.__appendOffset + 1 : 1;
-  });
+  return child;
 }
 
-export function closeChildren(els) {
+export function endChildren(els) {
   let Event;
 
   forEach(els, el => {

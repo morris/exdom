@@ -1,7 +1,7 @@
-import { forEach } from "./util";
+import { forEach, firstOf } from "./util";
 
 export function getValue(els) {
-  const el = els && els.addEventListener ? els : els[0];
+  const el = firstOf(els);
 
   if (!el) return;
 

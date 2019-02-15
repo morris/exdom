@@ -13,6 +13,32 @@ export function getRefs(els, classNames, prefix) {
   return refs;
 }
 
+export function getClosestOfClass(els, className) {
+  const el = firstOf(els);
+
+  if (!el) return;
+
+  let current = el;
+  while (current) {
+    if (hasClass(current, className)) return current;
+    current = current.parentNode;
+  }
+}
+
+export function contain(els, target) {
+  const els_ = listOf(els);
+
+  for (let i = 0, l = els_.length; i < l; ++i) {
+    let current = target;
+    while (current) {
+      if (current === els_[i]) return true;
+      current = current.parentNode;
+    }
+  }
+
+  return false;
+}
+
 export function escapeHtml(context, text) {
   const tempEl = getTempEl(context);
   tempEl.innerText = text;
@@ -45,71 +71,58 @@ export function hasClass(els, className) {
 export const BREAK = {};
 
 export function forEach(els, fn) {
-  if (els) {
-    if (els.addEventListener) {
-      els = [els];
-    }
-  } else {
-    els = [];
+  const els_ = listOf(els);
+
+  for (let i = 0, l = els_.length; i < l; ++i) {
+    if (fn(els_[i], i) === BREAK) return els_;
   }
 
-  for (let i = 0, l = els.length; i < l; ++i) {
-    if (fn(els[i], i) === BREAK) return els;
-  }
-
-  return els;
+  return els_;
 }
 
 export function map(els, fn) {
-  if (els) {
-    if (els.addEventListener) {
-      els = [els];
-    }
-  } else {
-    els = [];
-  }
-
+  const els_ = listOf(els);
   const result = [];
 
-  for (let i = 0, l = els.length; i < l; ++i) {
-    result.push(fn(els[i], i));
+  for (let i = 0, l = els_.length; i < l; ++i) {
+    result.push(fn(els_[i], i));
   }
 
   return result;
 }
 
 export function filter(els, fn) {
-  if (els) {
-    if (els.addEventListener) {
-      els = [els];
-    }
-  } else {
-    els = [];
-  }
-
+  const els_ = listOf(els);
   const result = [];
 
-  for (let i = 0, l = els.length; i < l; ++i) {
-    if (fn(els[i], i)) result.push(els[i]);
+  for (let i = 0, l = els_.length; i < l; ++i) {
+    const el = els_[i];
+    if (fn(el, i)) result.push(el);
   }
 
   return result;
 }
 
 export function indexOf(els, el) {
-  if (els) {
-    if (els.addEventListener) {
-      els = [els];
-    }
-  } else {
-    els = [];
-  }
+  const els_ = listOf(els);
 
-  for (let i = 0, l = els.length; i < l; ++i) {
-    if (els[i] === el) return i;
+  for (let i = 0, l = els_.length; i < l; ++i) {
+    if (els_[i] === el) return i;
   }
 
   return -1;
+}
+
+export function listOf(els) {
+  if (!els) return [];
+  if (els.addEventListener) return [els];
+  return els;
+}
+
+export function firstOf(els) {
+  if (!els) return;
+  if (els.addEventListener) return els;
+  return els[0];
 }
 
 //
@@ -117,7 +130,10 @@ export function indexOf(els, el) {
 let _tempEl;
 
 function getTempEl(context) {
-  const document = context.ownerDocument || context[0].ownerDocument;
-  if (!_tempEl) _tempEl = document.createElement("div");
+  if (!_tempEl) {
+    const document = context.ownerDocument || context[0].ownerDocument;
+    _tempEl = document.createElement("div");
+  }
+
   return _tempEl;
 }
