@@ -1,26 +1,26 @@
-import { listen, emit, send } from "./events";
+import { listen, emit } from "./events";
 import { getWindow } from "./util";
 
-export function backupSession(els, key, def) {
-  return backup(els, "sessionStorage", key, def);
+export function sessionValue(els, key, def) {
+  return storageValue(els, "sessionStorage", key, def);
 }
 
-export function backupLocal(els, key, def) {
-  return backup(els, "localStorage", key, def);
+export function localValue(els, key, def) {
+  return storageValue(els, "localStorage", key, def);
 }
 
-export function backup(els, storageName, key, def) {
+export function storageValue(els, storageName, key, def) {
   if (typeof key === "object") {
     return Object.keys(key).forEach(k => {
-      backup(els, storageName, k, key[k]);
+      storage(els, storageName, k, key[k]);
     });
   }
 
   const storage = getWindow(els)[storageName];
 
   listen(els, key, e => {
-    if (e.__backup) return;
-    e.__backup = true;
+    if (e.__storageValue) return;
+    e.__storageValue = true;
 
     const raw = JSON.stringify(e.detail);
 
@@ -43,6 +43,4 @@ export function backup(els, storageName, key, def) {
 
     emit(els, key, def);
   });
-
-  send(els, "readStorage");
 }

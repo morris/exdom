@@ -2,10 +2,10 @@
 import * as assert from "assert";
 import { JSDOM } from "jsdom";
 
-import { observe, emit, backupLocal } from "../src";
+import { observe, emit, localValue } from "../src";
 
 describe("From the storage module,", () => {
-  describe("backupLocal", () => {
+  describe("localValue", () => {
     it("should read/write event details to localStorage", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`, {
         url: "http://localhost:3999",
@@ -19,13 +19,13 @@ describe("From the storage module,", () => {
         foos.push($foo);
       });
 
-      backupLocal(test, "foo", { bar: 1 });
+      localValue(test, "foo", { bar: 1 });
 
       emit(test, "readStorage");
 
       emit(test, "foo", { bar: 2 });
 
-      assert.deepEqual(foos, [{ bar: 1 }, { bar: 1 }, { bar: 2 }]);
+      assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }]);
     });
   });
 });

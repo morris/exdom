@@ -615,23 +615,23 @@
     }
   }
 
-  function backupSession(els, key, def) {
-    return backup(els, "sessionStorage", key, def);
+  function sessionValue(els, key, def) {
+    return storageValue(els, "sessionStorage", key, def);
   }
-  function backupLocal(els, key, def) {
-    return backup(els, "localStorage", key, def);
+  function localValue(els, key, def) {
+    return storageValue(els, "localStorage", key, def);
   }
-  function backup(els, storageName, key, def) {
+  function storageValue(els, storageName, key, def) {
     if (_typeof(key) === "object") {
       return Object.keys(key).forEach(function (k) {
-        backup(els, storageName, k, key[k]);
+        storage(els, storageName, k, key[k]);
       });
     }
 
     var storage = getWindow(els)[storageName];
     listen(els, key, function (e) {
-      if (e.__backup) return;
-      e.__backup = true;
+      if (e.__storageValue) return;
+      e.__storageValue = true;
       var raw = JSON.stringify(e.detail);
 
       if (raw !== storage[key]) {
@@ -652,7 +652,6 @@
 
       emit(els, key, def);
     });
-    send(els, "readStorage");
   }
 
   exports.observe = observe;
@@ -691,9 +690,9 @@
   exports.indexOf = indexOf;
   exports.listOf = listOf;
   exports.firstOf = firstOf;
-  exports.backupSession = backupSession;
-  exports.backupLocal = backupLocal;
-  exports.backup = backup;
+  exports.sessionValue = sessionValue;
+  exports.localValue = localValue;
+  exports.storageValue = storageValue;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
