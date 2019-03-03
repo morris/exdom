@@ -6,8 +6,8 @@
   "author": "Morris Brodersen <mb@morrisbrodersen.de>",
   "license": "ISC",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/morris/exdom.git"
+    "type": "git",
+    "url": "https://github.com/morris/exdom.git"
   },
   "module": "src/index.js",
   "main": "dist/exdom.js",
