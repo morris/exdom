@@ -64,13 +64,17 @@ export function buildHeaders(context, options, extra) {
     headers.set("Content-Type", "application/json");
   }
 
-  Object.keys((options && options.headers) || {}).forEach(key => {
-    headers.set(key, options.headers[key]);
-  });
+  if (options && options.headers) {
+    Object.keys(options.headers).forEach(key => {
+      headers.set(key, options.headers[key]);
+    });
+  }
 
-  Object.keys((extra && extra.headers) || {}).forEach(key => {
-    headers.set(key, extra.headers[key]);
-  });
+  if (extra && extra.headers) {
+    Object.keys(extra.headers).forEach(key => {
+      headers.set(key, extra.headers[key]);
+    });
+  }
 
   return headers;
 }
