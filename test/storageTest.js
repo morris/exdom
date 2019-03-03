@@ -26,6 +26,14 @@ describe("From the storage module,", () => {
       emit(test, "foo", { bar: 2 });
 
       assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }]);
+      assert.deepEqual(JSON.parse(dom.window.localStorage.foo), { bar: 2 });
+
+      emit(test, "foo", { bar: 3 });
+
+      assert.deepEqual(JSON.parse(dom.window.localStorage.foo), { bar: 3 });
+
+      emit(test, "readStorage");
+      assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }, { bar: 3 }, { bar: 3 }]);
     });
   });
 });

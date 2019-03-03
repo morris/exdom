@@ -1,3 +1,3 @@
 # EXDOM
 
-Much WIP.
+DOM utility library. Much WIP.

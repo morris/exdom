@@ -1,13 +1,27 @@
-export function getRefs(els, classNames, prefix) {
-  const refs = {};
+export function getRefs(els, prefix, inputRefs) {
+  const refs = inputRefs || {};
 
   forEach(els, el => {
-    classNames.forEach(className => {
-      refs[className] = [];
-      forEach(el.getElementsByClassName((prefix || "-") + className), el_ => {
-        refs[className].push(el_);
+    if (el.className) {
+      el.className.split(/\s+/g).map(className => {
+        let refName;
+
+        if (prefix) {
+          if (className.indexOf(prefix) !== 0) return;
+          refName = camelCase(className.slice(prefix.length));
+        } else {
+          refName = camelCase(className);
+        }
+
+        if (!refs[refName]) {
+          refs[refName] = [el];
+        } else {
+          refs[refName].push(el);
+        }
       });
-    });
+    }
+
+    getRefs(el.children, prefix, refs);
   });
 
   return refs;
@@ -15,8 +29,6 @@ export function getRefs(els, classNames, prefix) {
 
 export function getClosestOfClass(els, className) {
   const el = firstOf(els);
-
-  if (!el) return;
 
   let current = el;
   while (current) {
@@ -136,4 +148,8 @@ function getTempEl(context) {
   }
 
   return _tempEl;
+}
+
+function camelCase(str) {
+  return str.replace(/-+./g, m => m.slice(m.length - 1).toUpperCase());
 }

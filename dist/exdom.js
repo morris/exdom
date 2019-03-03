@@ -52,21 +52,34 @@
     return target;
   }
 
-  function getRefs(els, classNames, prefix) {
-    var refs = {};
+  function getRefs(els, prefix, inputRefs) {
+    var refs = inputRefs || {};
     forEach(els, function (el) {
-      classNames.forEach(function (className) {
-        refs[className] = [];
-        forEach(el.getElementsByClassName((prefix || "-") + className), function (el_) {
-          refs[className].push(el_);
+      if (el.className) {
+        el.className.split(/\s+/g).map(function (className) {
+          var refName;
+
+          if (prefix) {
+            if (className.indexOf(prefix) !== 0) return;
+            refName = camelCase(className.slice(prefix.length));
+          } else {
+            refName = camelCase(className);
+          }
+
+          if (!refs[refName]) {
+            refs[refName] = [el];
+          } else {
+            refs[refName].push(el);
+          }
         });
-      });
+      }
+
+      getRefs(el.children, prefix, refs);
     });
     return refs;
   }
   function getClosestOfClass(els, className) {
     var el = firstOf(els);
-    if (!el) return;
     var current = el;
 
     while (current) {
@@ -174,6 +187,12 @@
     }
 
     return _tempEl;
+  }
+
+  function camelCase(str) {
+    return str.replace(/-+./g, function (m) {
+      return m.slice(m.length - 1).toUpperCase();
+    });
   }
 
   function observe(els, options, extra) {
@@ -292,19 +311,13 @@
     if (!el) return;
 
     switch (el.tagName === "INPUT" ? el.type : el.tagName) {
-      case "text":
-      case "password":
-      case "SELECT":
-        return el.value || "";
-
-      case "TEXTAREA":
-        return el.value;
-
       case "checkbox":
+      case "radio":
         return !!el.checked;
 
       default:
-        return;
+        // text, hidden, password, textarea, etc.
+        return el.value || "";
     }
   }
   function setValue(els, value) {
@@ -314,19 +327,10 @@
       var elValue, multiple;
 
       switch (tagName === "INPUT" ? el.type : tagName) {
-        case "text":
-        case "password":
-        case "TEXTAREA":
-          if (el.value !== val + "") el.value = val;
-          break;
-
         case "checkbox":
+        case "radio":
           elValue = el.getAttribute("value") || "on";
           el.checked = Array.isArray(val) ? value.indexOf(elValue) >= 0 : val === elValue;
-          break;
-
-        case "radio":
-          // TODO
           break;
 
         case "SELECT":
@@ -336,6 +340,17 @@
             option.selected = multiple ? value.indexOf(optionValue) >= 0 : value + "" == optionValue;
           });
           break;
+
+        case "OPTION":
+        case "file":
+        case "image":
+        case "reset":
+          break;
+
+        default:
+          // text, hidden, password, textarea, etc.
+          if (el.value !== val + "") el.value = val;
+          break;
       }
     });
   }
@@ -344,6 +359,123 @@
     if (value === true) return "on";
     if (Array.isArray(value)) return value.map(toValue);
     return value + "";
+  }
+
+  function request(els, options, extra) {
+    var _getWindow = getWindow(els),
+        fetch = _getWindow.fetch;
+
+    var options_ = typeof options === "string" ? {
+      url: options
+    } : options;
+
+    var req = _objectSpread({
+      read: "auto"
+    }, options_, extra, {
+      headers: buildHeaders(els, options_, extra),
+      body: buildBody(els, options_, extra)
+    });
+
+    emit(els, "request", req);
+    var res, body;
+    return fetch(req.url, req).then(function (r) {
+      res = r;
+      emit(els, "response", {
+        req: req,
+        res: res
+      });
+      if (!req.read) return;
+      return readResponse(els, res, req.read).then(function (b) {
+        body = b;
+        emit(els, "fullResponse", {
+          req: req,
+          res: res,
+          body: body
+        });
+      });
+    }).then(function () {
+      if (res.status >= 400) {
+        throw new Error("Status code error ".concat(res.status));
+      }
+
+      return {
+        req: req,
+        res: res,
+        body: body
+      };
+    }).catch(function (err) {
+      err.req = req;
+      err.res = res;
+      err.body = body;
+      emit(els, "requestError", err);
+      throw err;
+    });
+  }
+  function buildHeaders(context, options, extra) {
+    var _getWindow2 = getWindow(context),
+        Headers = _getWindow2.Headers,
+        FormData = _getWindow2.FormData;
+
+    var req = _objectSpread({}, options, extra);
+
+    var headers = new Headers();
+
+    if (req.read === "json" || req.read === "application/json") {
+      headers.set("Accept", "application/json");
+    }
+
+    if (_typeof(req.body) === "object" && !(req.body instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
+
+    Object.keys(options && options.headers || {}).forEach(function (key) {
+      headers.set(key, options.headers[key]);
+    });
+    Object.keys(extra && extra.headers || {}).forEach(function (key) {
+      headers.set(key, extra.headers[key]);
+    });
+    return headers;
+  }
+  function buildBody(context, options, extra) {
+    var _getWindow3 = getWindow(context),
+        FormData = _getWindow3.FormData;
+
+    var body = extra && extra.body || options && options.body;
+
+    if (_typeof(body) === "object" && !(body instanceof FormData)) {
+      return JSON.stringify(options.body);
+    }
+
+    return body;
+  }
+  function readResponse(context, res, contentType) {
+    var c = contentType === "auto" ? (res.headers.get("content-type") || "").toLowerCase() : contentType;
+
+    switch (c.replace(/;.*$/, "")) {
+      case "blob":
+        return res.blob();
+
+      case "formData":
+      case "application/x-www-form-urlencoded":
+        return res.formData();
+
+      case "json":
+      case "application/json":
+        return res.json();
+
+      case "text":
+      case "application/javascript":
+      case "text/css":
+      case "text/csv":
+      case "text/calendar":
+      case "text/html":
+      case "text/javascript":
+      case "text/plain":
+        return res.text();
+
+      default:
+        return res.arrayBuffer();
+    }
   }
 
   function startChildren(els, offset) {
@@ -498,123 +630,6 @@
     return proto;
   }
 
-  function request(els, options, extra) {
-    var _getWindow = getWindow(els),
-        fetch = _getWindow.fetch;
-
-    var options_ = typeof options === "string" ? {
-      url: options
-    } : options;
-
-    var req = _objectSpread({
-      read: "auto"
-    }, options_, extra, {
-      headers: buildHeaders(els, options_, extra),
-      body: buildBody(els, options_, extra)
-    });
-
-    emit(els, "request", req);
-    var res, body;
-    return fetch(req.url, req).then(function (r) {
-      res = r;
-      emit(els, "response", {
-        req: req,
-        res: res
-      });
-      if (!req.read) return;
-      return readResponse(els, res, req.read).then(function (b) {
-        body = b;
-        emit(els, "fullResponse", {
-          req: req,
-          res: res,
-          body: body
-        });
-      });
-    }).then(function () {
-      if (res.status >= 400) {
-        throw new Error("Status code error ".concat(res.status));
-      }
-
-      return {
-        req: req,
-        res: res,
-        body: body
-      };
-    }).catch(function (err) {
-      err.req = req;
-      err.res = res;
-      err.body = body;
-      emit(els, "requestError", err);
-      throw err;
-    });
-  }
-  function buildHeaders(context, options, extra) {
-    var _getWindow2 = getWindow(context),
-        Headers = _getWindow2.Headers,
-        FormData = _getWindow2.FormData;
-
-    var req = _objectSpread({}, options, extra);
-
-    var headers = new Headers();
-
-    if (req.read === "json" || req.read === "application/json") {
-      headers.set("Accept", "application/json");
-    }
-
-    if (_typeof(req.body) === "object" && !(req.body instanceof FormData)) {
-      headers.set("Content-Type", "application/json");
-    }
-
-    Object.keys(options && options.headers || {}).forEach(function (key) {
-      headers.set(key, options.headers[key]);
-    });
-    Object.keys(extra && extra.headers || {}).forEach(function (key) {
-      headers.set(key, extra.headers[key]);
-    });
-    return headers;
-  }
-  function buildBody(context, options, extra) {
-    var _getWindow3 = getWindow(context),
-        FormData = _getWindow3.FormData;
-
-    var body = extra && extra.body || options && options.body;
-
-    if (_typeof(body) === "object" && !(body instanceof FormData)) {
-      return JSON.stringify(options.body);
-    }
-
-    return body;
-  }
-  function readResponse(context, res, contentType) {
-    var c = contentType === "auto" ? (res.headers.get("content-type") || "").toLowerCase() : contentType;
-
-    switch (c.replace(/;.*$/, "")) {
-      case "blob":
-        return res.blob();
-
-      case "formData":
-      case "application/x-www-form-urlencoded":
-        return res.formData();
-
-      case "json":
-      case "application/json":
-        return res.json();
-
-      case "text":
-      case "application/javascript":
-      case "text/css":
-      case "text/csv":
-      case "text/calendar":
-      case "text/html":
-      case "text/javascript":
-      case "text/plain":
-        return res.text();
-
-      default:
-        return res.arrayBuffer();
-    }
-  }
-
   function sessionValue(els, key, def) {
     return storageValue(els, "sessionStorage", key, def);
   }
@@ -663,6 +678,10 @@
   exports.getValue = getValue;
   exports.setValue = setValue;
   exports.toValue = toValue;
+  exports.request = request;
+  exports.buildHeaders = buildHeaders;
+  exports.buildBody = buildBody;
+  exports.readResponse = readResponse;
   exports.startChildren = startChildren;
   exports.keepChildren = keepChildren;
   exports.appendChildren = appendChildren;
@@ -672,10 +691,9 @@
   exports.setHtml = setHtml;
   exports.setAttr = setAttr;
   exports.setClass = setClass;
-  exports.request = request;
-  exports.buildHeaders = buildHeaders;
-  exports.buildBody = buildBody;
-  exports.readResponse = readResponse;
+  exports.sessionValue = sessionValue;
+  exports.localValue = localValue;
+  exports.storageValue = storageValue;
   exports.getRefs = getRefs;
   exports.getClosestOfClass = getClosestOfClass;
   exports.contain = contain;
@@ -690,9 +708,6 @@
   exports.indexOf = indexOf;
   exports.listOf = listOf;
   exports.firstOf = firstOf;
-  exports.sessionValue = sessionValue;
-  exports.localValue = localValue;
-  exports.storageValue = storageValue;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
