@@ -1,7 +1,0 @@
-#!/bin/sh
-set -e
-git clone --depth 1 https://github.com/morris/defgit scripts/tmp
-rm -rf scripts/tmp/.git scripts/tmp/test scripts/*.md
-cp -f scripts/tmp/* scripts/
-rm -rf scripts/tmp
-sh scripts/init

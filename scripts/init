@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-rm -rf scripts/.git scripts/test scripts/*.md
 echo "sh scripts/commit-msg \"\$1\"" > .git/hooks/commit-msg
 echo "sh scripts/pre-commit" > .git/hooks/pre-commit
 echo "sh scripts/pre-push" > .git/hooks/pre-push

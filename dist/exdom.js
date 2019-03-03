@@ -428,12 +428,18 @@
       headers.set("Content-Type", "application/json");
     }
 
-    Object.keys(options && options.headers || {}).forEach(function (key) {
-      headers.set(key, options.headers[key]);
-    });
-    Object.keys(extra && extra.headers || {}).forEach(function (key) {
-      headers.set(key, extra.headers[key]);
-    });
+    if (options && options.headers) {
+      Object.keys(options.headers).forEach(function (key) {
+        headers.set(key, options.headers[key]);
+      });
+    }
+
+    if (extra && extra.headers) {
+      Object.keys(extra.headers).forEach(function (key) {
+        headers.set(key, extra.headers[key]);
+      });
+    }
+
     return headers;
   }
   function buildBody(context, options, extra) {
