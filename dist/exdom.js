@@ -494,9 +494,11 @@
       el.__appendOffset = typeof el.__appendOffset === "number" ? el.__appendOffset + n : n;
     });
   }
-  function appendChildren(els, optionsArray, extra) {
+  function appendChildren(els, optionsArray, baseOptions) {
+    var el = firstOf(els);
+    if (!el) return [];
     return optionsArray.map(function (options) {
-      return appendChild(els, options, extra);
+      return appendChild(el, baseOptions, options);
     });
   }
   function appendChild(els, options, extra) {

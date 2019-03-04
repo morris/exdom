@@ -13,8 +13,12 @@ export function keepChildren(els, n) {
   });
 }
 
-export function appendChildren(els, optionsArray, extra) {
-  return optionsArray.map(options => appendChild(els, options, extra));
+export function appendChildren(els, optionsArray, baseOptions) {
+  const el = firstOf(els);
+
+  if (!el) return [];
+
+  return optionsArray.map(options => appendChild(el, baseOptions, options));
 }
 
 export function appendChild(els, options, extra) {
