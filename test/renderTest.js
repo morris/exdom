@@ -46,21 +46,20 @@ describe("From the render module,", () => {
     });
 
     it("should append a table row", () => {
-      const dom = new JSDOM(`<!DOCTYPE html><table><tbody id="test"></tbody></table>`);
+      const dom = new JSDOM(
+        `<!DOCTYPE html><table><tbody id="test"></tbody></table>`
+      );
       const test = dom.window.document.getElementById("test");
       let init = false;
 
-      appendChild(
-        test,
-        {
-          html: "<tr><td>test</td></tr>",
-          init: el => {
-            init = true;
-            assert.equal(el.tagName, "TR");
-            assert.equal(el.innerHTML, "<td>test</td>");
-          }
+      appendChild(test, {
+        html: "<tr><td>test</td></tr>",
+        init: el => {
+          init = true;
+          assert.equal(el.tagName, "TR");
+          assert.equal(el.innerHTML, "<td>test</td>");
         }
-      );
+      });
 
       assert.ok(init);
     });

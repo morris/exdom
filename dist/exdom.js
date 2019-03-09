@@ -101,14 +101,14 @@
 
     return false;
   }
-  function escapeHtml(context, text) {
-    var tempEl = getTempEl(context);
+  function escapeHtml(target, text) {
+    var tempEl = getTempEl(target);
     tempEl.innerText = text;
     return tempEl.innerHTML;
   }
-  function parseEl(context, html) {
+  function parseEl(target, html) {
     if (typeof html === "string") {
-      var tempEl = getTempEl(context);
+      var tempEl = getTempEl(target);
       tempEl.innerHTML = html;
       return tempEl.firstElementChild;
     }
@@ -178,15 +178,18 @@
     return els[0];
   } //
 
-  var _tempEl;
+  var tempElMap = new Map();
 
-  function getTempEl(context) {
-    if (!_tempEl) {
-      var document = context.ownerDocument || context[0].ownerDocument;
-      _tempEl = document.createElement("div");
+  function getTempEl(target) {
+    var tempEl = tempElMap.get(target.tagName);
+
+    if (!tempEl) {
+      var document = target.ownerDocument || target[0].ownerDocument;
+      tempEl = document.createElement(target.tagName);
+      tempElMap.set(target.tagName, tempEl);
     }
 
-    return _tempEl;
+    return tempEl;
   }
 
   function camelCase(str) {
@@ -627,12 +630,13 @@
 
   var protoCache = new Map();
 
-  function getProto(context, html) {
-    var proto = protoCache.get(html);
+  function getProto(target, html) {
+    var key = target.tagName + html;
+    var proto = protoCache.get(key);
 
     if (!proto) {
-      proto = parseEl(context, html);
-      protoCache.set(html, proto);
+      proto = parseEl(target, html);
+      protoCache.set(key, proto);
     }
 
     return proto;
