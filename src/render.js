@@ -158,11 +158,13 @@ function cloneProto(proto) {
 
 const protoCache = new Map();
 
-function getProto(context, html) {
-  let proto = protoCache.get(html);
+function getProto(target, html) {
+  const key = target.tagName + html;
+  let proto = protoCache.get(key);
+
   if (!proto) {
-    proto = parseEl(context, html);
-    protoCache.set(html, proto);
+    proto = parseEl(target, html);
+    protoCache.set(key, proto);
   }
 
   return proto;

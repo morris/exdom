@@ -51,15 +51,15 @@ export function contain(els, target) {
   return false;
 }
 
-export function escapeHtml(context, text) {
-  const tempEl = getTempEl(context);
+export function escapeHtml(target, text) {
+  const tempEl = getTempEl(target);
   tempEl.innerText = text;
   return tempEl.innerHTML;
 }
 
-export function parseEl(context, html) {
+export function parseEl(target, html) {
   if (typeof html === "string") {
-    const tempEl = getTempEl(context);
+    const tempEl = getTempEl(target);
     tempEl.innerHTML = html;
     return tempEl.firstElementChild;
   }
@@ -139,15 +139,18 @@ export function firstOf(els) {
 
 //
 
-let _tempEl;
+let tempElMap = new Map();
 
-function getTempEl(context) {
-  if (!_tempEl) {
-    const document = context.ownerDocument || context[0].ownerDocument;
-    _tempEl = document.createElement("div");
+function getTempEl(target) {
+  let tempEl = tempElMap.get(target.tagName);
+
+  if (!tempEl) {
+    const document = target.ownerDocument || target[0].ownerDocument;
+    tempEl = document.createElement(target.tagName);
+    tempElMap.set(target.tagName, tempEl);
   }
 
-  return _tempEl;
+  return tempEl;
 }
 
 function camelCase(str) {
