@@ -36,6 +36,8 @@ export function request(els, options, extra) {
         throw new Error(`Status code error ${res.status}`);
       }
 
+      emit(els, "requestDone");
+
       return { req, res, body };
     })
     .catch(err => {
@@ -44,6 +46,7 @@ export function request(els, options, extra) {
       err.body = body;
 
       emit(els, "requestError", err);
+      emit(els, "requestDone");
 
       throw err;
     });

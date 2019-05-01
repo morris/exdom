@@ -57,6 +57,8 @@ describe("From the events module,", () => {
       send(test, "foo", 1);
       send(test, "bar", 2);
       send(test, "baz", 3);
+      send(test, "foo", 4);
+      send(test, "bar", 5);
 
       assert.deepStrictEqual(calls, [[1, 2, 3]]);
     });
@@ -74,6 +76,8 @@ describe("From the events module,", () => {
       send(test, "foo", 1);
       send(test, "bar", 2);
       send(test, "baz", 3);
+      send(test, "foo", 4);
+      send(test, "bar", 5);
 
       assert.deepStrictEqual(calls, [
         [1, 2, new dom.window.CustomEvent("baz", {})]
