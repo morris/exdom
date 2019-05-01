@@ -63,6 +63,36 @@ describe("From the render module,", () => {
 
       assert.ok(init);
     });
+
+    it("should append children in different combinations", () => {
+      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
+
+      const A = { html: "<div>a</div>" };
+      const B = { html: "<div><p>b</p></div>" };
+
+      appendChild(test, A);
+      appendChild(test, B);
+      endChildren(test);
+
+      assert.equal(test.innerHTML, '<div>a</div><div><p>b</p></div>');
+
+      appendChild(test, B);
+      appendChild(test, A);
+      endChildren(test);
+
+      assert.equal(test.innerHTML, '<div><p>b</p></div><div>a</div>');
+
+      appendChild(test, A);
+      endChildren(test);
+
+      assert.equal(test.innerHTML, '<div>a</div>');
+
+      appendChild(test, B);
+      endChildren(test);
+
+      assert.equal(test.innerHTML, '<div><p>b</p></div>');
+    });
   });
 
   describe("appendChildren", () => {

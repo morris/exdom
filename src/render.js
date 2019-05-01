@@ -80,6 +80,7 @@ export function endChildren(els) {
       );
       el.removeChild(el.lastElementChild);
     }
+
     el.__appendOffset = 0;
   });
 }
@@ -143,10 +144,8 @@ export function setClass(els, classNames, condition) {
 //
 
 function compatible(el, proto) {
-  return (
-    el.__proto === proto ||
-    (el.tagName === proto.tagName && el.className === proto.className)
-  );
+  if (el.__proto) return el.__proto === proto;
+  return el.tagName === proto.tagName && el.className === proto.className;
 }
 
 function cloneProto(proto) {
