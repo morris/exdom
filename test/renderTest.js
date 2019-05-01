@@ -21,7 +21,7 @@ describe("From the render module,", () => {
       appendChild(
         test,
         {
-          html: "<p>test</p>",
+          template: "<p>test</p>",
           init: el => {
             init = true;
             assert.equal(el.tagName, "P");
@@ -53,7 +53,7 @@ describe("From the render module,", () => {
       let init = false;
 
       appendChild(test, {
-        html: "<tr><td>test</td></tr>",
+        template: "<tr><td>test</td></tr>",
         init: el => {
           init = true;
           assert.equal(el.tagName, "TR");
@@ -68,8 +68,8 @@ describe("From the render module,", () => {
       const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
       const test = dom.window.document.getElementById("test");
 
-      const A = { html: "<div>a</div>" };
-      const B = { html: "<div><p>b</p></div>" };
+      const A = { template: "<div>a</div>" };
+      const B = { template: "<div><p>b</p></div>" };
 
       appendChild(test, A);
       appendChild(test, B);
@@ -101,7 +101,7 @@ describe("From the render module,", () => {
       const test = dom.window.document.getElementById("test");
 
       const options = {
-        html: "<p>lel</p>",
+        template: "<p>lel</p>",
         init: el => {
           listen(el, "pass", e => {
             setHtml(el, e.detail.test);
@@ -150,13 +150,13 @@ describe("From the render module,", () => {
       appendChildren(
         test,
         [
-          { test: "foo", html: "<div></div>" },
+          { test: "foo", template: "<div></div>" },
           { test: "wow" },
-          { test: "baz", html: '<p class="x"></p>', init: () => null },
+          { test: "baz", template: '<p class="x"></p>', init: () => null },
           { test: "lol" }
         ].map(pass => ({
           ...options,
-          html: pass.html || options.html,
+          template: pass.template || options.template,
           init: pass.init || options.init,
           pass
         }))
@@ -175,7 +175,7 @@ describe("From the render module,", () => {
       const test = dom.window.document.getElementById("test");
 
       const options = {
-        html: "<p>lel</p>",
+        template: "<p>lel</p>",
         init: el => {
           listen(el, "pass", e => {
             setHtml(el, e.detail.test);

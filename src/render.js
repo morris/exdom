@@ -27,13 +27,13 @@ export function appendChild(els, options, extra) {
   if (!el) return;
 
   const o = {
-    ...(typeof options === "string" ? { html: options } : options),
-    ...(typeof extra === "string" ? { html: extra } : extra)
+    ...(typeof options === "string" ? { template: options } : options),
+    ...(typeof extra === "string" ? { template: extra } : extra)
   };
 
   const compat = o.compatible || compatible;
   const { CustomEvent } = getWindow(el);
-  const proto = getProto(el, o.html);
+  const proto = getProto(el, o.template);
 
   // reconciliation
   const offsetChild = el.children[el.__appendOffset || 0];
@@ -157,12 +157,12 @@ function cloneProto(proto) {
 
 const protoCache = new Map();
 
-function getProto(target, html) {
-  const key = target.tagName + html;
+function getProto(target, template) {
+  const key = target.tagName + template;
   let proto = protoCache.get(key);
 
   if (!proto) {
-    proto = parseEl(target, html);
+    proto = parseEl(target, template);
     protoCache.set(key, proto);
   }
 
