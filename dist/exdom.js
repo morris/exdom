@@ -401,6 +401,7 @@
         throw new Error("Status code error ".concat(res.status));
       }
 
+      emit(els, "requestDone");
       return {
         req: req,
         res: res,
@@ -411,6 +412,7 @@
       err.res = res;
       err.body = body;
       emit(els, "requestError", err);
+      emit(els, "requestDone");
       throw err;
     });
   }
@@ -509,9 +511,9 @@
     if (!el) return;
 
     var o = _objectSpread({}, typeof options === "string" ? {
-      html: options
+      template: options
     } : options, typeof extra === "string" ? {
-      html: extra
+      template: extra
     } : extra);
 
     var compat = o.compatible || compatible;
@@ -519,7 +521,7 @@
     var _getWindow = getWindow(el),
         CustomEvent = _getWindow.CustomEvent;
 
-    var proto = getProto(el, o.html); // reconciliation
+    var proto = getProto(el, o.template); // reconciliation
 
     var offsetChild = el.children[el.__appendOffset || 0];
     var child = offsetChild;
@@ -619,7 +621,8 @@
   } //
 
   function compatible(el, proto) {
-    return el.__proto === proto || el.tagName === proto.tagName && el.className === proto.className;
+    if (el.__proto) return el.__proto === proto;
+    return el.tagName === proto.tagName && el.className === proto.className;
   }
 
   function cloneProto(proto) {
@@ -630,12 +633,12 @@
 
   var protoCache = new Map();
 
-  function getProto(target, html) {
-    var key = target.tagName + html;
+  function getProto(target, template) {
+    var key = target.tagName + template;
     var proto = protoCache.get(key);
 
     if (!proto) {
-      proto = parseEl(target, html);
+      proto = parseEl(target, template);
       protoCache.set(key, proto);
     }
 
@@ -681,45 +684,45 @@
     });
   }
 
-  exports.observe = observe;
-  exports.relay = relay;
-  exports.listen = listen;
-  exports.send = send;
-  exports.emit = emit;
-  exports.dispatch = dispatch;
-  exports.getValue = getValue;
-  exports.setValue = setValue;
-  exports.toValue = toValue;
-  exports.request = request;
-  exports.buildHeaders = buildHeaders;
-  exports.buildBody = buildBody;
-  exports.readResponse = readResponse;
-  exports.startChildren = startChildren;
-  exports.keepChildren = keepChildren;
-  exports.appendChildren = appendChildren;
+  exports.BREAK = BREAK;
   exports.appendChild = appendChild;
-  exports.endChildren = endChildren;
-  exports.setText = setText;
-  exports.setHtml = setHtml;
-  exports.setAttr = setAttr;
-  exports.setClass = setClass;
-  exports.sessionValue = sessionValue;
-  exports.localValue = localValue;
-  exports.storageValue = storageValue;
-  exports.getRefs = getRefs;
-  exports.getClosestOfClass = getClosestOfClass;
+  exports.appendChildren = appendChildren;
+  exports.buildBody = buildBody;
+  exports.buildHeaders = buildHeaders;
   exports.contain = contain;
+  exports.dispatch = dispatch;
+  exports.emit = emit;
+  exports.endChildren = endChildren;
   exports.escapeHtml = escapeHtml;
-  exports.parseEl = parseEl;
+  exports.filter = filter;
+  exports.firstOf = firstOf;
+  exports.forEach = forEach;
+  exports.getClosestOfClass = getClosestOfClass;
+  exports.getRefs = getRefs;
+  exports.getValue = getValue;
   exports.getWindow = getWindow;
   exports.hasClass = hasClass;
-  exports.BREAK = BREAK;
-  exports.forEach = forEach;
-  exports.map = map;
-  exports.filter = filter;
   exports.indexOf = indexOf;
+  exports.keepChildren = keepChildren;
   exports.listOf = listOf;
-  exports.firstOf = firstOf;
+  exports.listen = listen;
+  exports.localValue = localValue;
+  exports.map = map;
+  exports.observe = observe;
+  exports.parseEl = parseEl;
+  exports.readResponse = readResponse;
+  exports.relay = relay;
+  exports.request = request;
+  exports.send = send;
+  exports.sessionValue = sessionValue;
+  exports.setAttr = setAttr;
+  exports.setClass = setClass;
+  exports.setHtml = setHtml;
+  exports.setText = setText;
+  exports.setValue = setValue;
+  exports.startChildren = startChildren;
+  exports.storageValue = storageValue;
+  exports.toValue = toValue;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
