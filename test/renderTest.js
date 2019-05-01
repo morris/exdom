@@ -75,23 +75,23 @@ describe("From the render module,", () => {
       appendChild(test, B);
       endChildren(test);
 
-      assert.equal(test.innerHTML, '<div>a</div><div><p>b</p></div>');
+      assert.equal(test.innerHTML, "<div>a</div><div><p>b</p></div>");
 
       appendChild(test, B);
       appendChild(test, A);
       endChildren(test);
 
-      assert.equal(test.innerHTML, '<div><p>b</p></div><div>a</div>');
+      assert.equal(test.innerHTML, "<div><p>b</p></div><div>a</div>");
 
       appendChild(test, A);
       endChildren(test);
 
-      assert.equal(test.innerHTML, '<div>a</div>');
+      assert.equal(test.innerHTML, "<div>a</div>");
 
       appendChild(test, B);
       endChildren(test);
 
-      assert.equal(test.innerHTML, '<div><p>b</p></div>');
+      assert.equal(test.innerHTML, "<div><p>b</p></div>");
     });
   });
 
