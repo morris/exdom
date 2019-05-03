@@ -12,7 +12,7 @@ export function localValue(els, key, def) {
 export function storageValue(els, storageName, key, def) {
   if (typeof key === "object") {
     return Object.keys(key).forEach(k => {
-      storage(els, storageName, k, key[k]);
+      storageValue(els, storageName, k, key[k]);
     });
   }
 

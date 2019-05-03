@@ -654,7 +654,7 @@
   function storageValue(els, storageName, key, def) {
     if (_typeof(key) === "object") {
       return Object.keys(key).forEach(function (k) {
-        storage(els, storageName, k, key[k]);
+        storageValue(els, storageName, k, key[k]);
       });
     }
 
