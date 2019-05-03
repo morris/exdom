@@ -199,14 +199,11 @@
   }
 
   function observe(els, options, extra) {
-    var o = _objectSpread({}, typeof options === "function" ? {
-      handler: options
-    } : options, typeof extra === "function" ? {
-      handler: extra
-    } : extra);
+    var o = _objectSpread({}, parseOptions(options), parseOptions(extra));
 
     var hasVolatile = false;
-    var types = (o.types || parseArgumentNames(o.handler)).map(function (name) {
+    var typeNames = o.types || parseArgumentNames(o.handler);
+    var types = typeNames.map(function (name) {
       var full = name[0] === "_";
       var volatile = full || name[0] === "$";
       if (volatile) hasVolatile = true;
@@ -299,13 +296,30 @@
     });
   } //
 
+  function parseOptions(options) {
+    if (typeof options === "string") return {
+      types: split(options)
+    };
+    if (Array.isArray(options)) return {
+      types: options
+    };
+    if (typeof options === "function") return {
+      handler: options
+    };
+    return options;
+  }
+
   function parseArgumentNames(fn) {
     var m = fn.toString().match(/^function[^(]*\(([^)]*)\)|^\(([^)]*)\)|^([a-zA-Z$_][^=]*)/);
     var args = m[1] || m[2] || m[3];
-    return args.split(",").map(function (arg) {
-      return arg.trim();
-    }).filter(function (arg) {
+    return split(args).filter(function (arg) {
       return !!arg;
+    });
+  }
+
+  function split(csv) {
+    return csv.split(",").map(function (v) {
+      return v.trim();
     });
   }
 

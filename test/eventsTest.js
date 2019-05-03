@@ -135,5 +135,32 @@ describe("From the events module,", () => {
         [4, 5]
       ]);
     });
+
+    it("should work with async functions (with explicit types)", async () => {
+      const dom = new JSDOM(
+        `<!DOCTYPE html><div id="test">div#test<p>p</p><p class="foo">p.foo</p></div>`
+      );
+      const test = dom.window.document.getElementById("test");
+      const calls = [];
+
+      observe(test, "foo", async foo => {
+        calls.push(await foo);
+      });
+
+      const foop = new Promise(resolve =>
+        setTimeout(() => resolve("foo"), 200)
+      );
+      const barp = new Promise(resolve =>
+        setTimeout(() => resolve("bar"), 100)
+      );
+
+      send(test, "foo", foop);
+      send(test, "foo", barp);
+
+      await foop;
+      await barp;
+
+      assert.deepEqual(calls, ["bar", "foo"]);
+    });
   });
 });

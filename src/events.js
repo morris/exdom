@@ -2,13 +2,14 @@ import { forEach, getWindow, getClosestOfClass, contain } from "./util";
 
 export function observe(els, options, extra) {
   const o = {
-    ...(typeof options === "function" ? { handler: options } : options),
-    ...(typeof extra === "function" ? { handler: extra } : extra)
+    ...parseOptions(options),
+    ...parseOptions(extra)
   };
 
   let hasVolatile = false;
 
-  const types = (o.types || parseArgumentNames(o.handler)).map(name => {
+  const typeNames = o.types || parseArgumentNames(o.handler);
+  const types = typeNames.map(name => {
     const full = name[0] === "_";
     const volatile = full || name[0] === "$";
 
@@ -121,14 +122,22 @@ export function dispatch(els, e) {
 
 //
 
+function parseOptions(options) {
+  if (typeof options === "string") return { types: split(options) };
+  if (Array.isArray(options)) return { types: options };
+  if (typeof options === "function") return { handler: options };
+  return options;
+}
+
 function parseArgumentNames(fn) {
   const m = fn
     .toString()
     .match(/^function[^(]*\(([^)]*)\)|^\(([^)]*)\)|^([a-zA-Z$_][^=]*)/);
   const args = m[1] || m[2] || m[3];
 
-  return args
-    .split(",")
-    .map(arg => arg.trim())
-    .filter(arg => !!arg);
+  return split(args).filter(arg => !!arg);
+}
+
+function split(csv) {
+  return csv.split(",").map(v => v.trim());
 }
