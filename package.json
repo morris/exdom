@@ -1,6 +1,6 @@
 {
   "name": "exdom",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "DOM utility library",
   "homepage": "https://github.com/morris/exdom",
   "author": "Morris Brodersen <mb@morrisbrodersen.de>",
