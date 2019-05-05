@@ -126,6 +126,12 @@ function parseOptions(options) {
   if (typeof options === "string") return { types: split(options) };
   if (Array.isArray(options)) return { types: options };
   if (typeof options === "function") return { handler: options };
+  if (!options) return {};
+  if (typeof options.types === "string")
+    return {
+      ...options,
+      types: split(options.types)
+    };
   return options;
 }
 

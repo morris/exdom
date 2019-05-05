@@ -309,6 +309,10 @@
     if (typeof options === "function") return {
       handler: options
     };
+    if (!options) return {};
+    if (typeof options.types === "string") return _objectSpread({}, options, {
+      types: split(options.types)
+    });
     return options;
   }
 

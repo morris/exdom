@@ -162,6 +162,37 @@ describe("From the events module,", () => {
 
       assert.deepEqual(calls, ["bar", "foo"]);
     });
+
+    it("should work with an object argument", () => {
+      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
+      const test = dom.window.document.getElementById("test");
+      const calls = [];
+
+      observe(test, {
+        types: "foo, bar",
+        handler(x, y) {
+          calls.push([x, y]);
+        }
+      });
+
+      observe(test, {
+        types: ["bar", "baz"],
+        handler(x, y) {
+          calls.push([x, y]);
+        }
+      });
+
+      send(test, "foo", 1);
+      send(test, "bar", 2);
+      send(test, "baz", 3);
+
+      assert.deepStrictEqual(calls, [
+        [1, undefined],
+        [1, 2],
+        [2, undefined],
+        [2, 3]
+      ]);
+    });
   });
 
   describe("emit", () => {
