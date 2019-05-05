@@ -5,7 +5,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import { readFileSync } from "fs";
 
-import { request, observe } from "../src";
+import { observe } from "../src/events";
+import { request } from "../src/http";
 
 describe("From the http module,", () => {
   describe("request", () => {

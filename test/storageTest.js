@@ -2,7 +2,8 @@
 import * as assert from "assert";
 import { JSDOM } from "jsdom";
 
-import { observe, emit, localValue, send } from "../src";
+import { observe, emit, send } from "../src/events";
+import { localValue } from "../src/storage";
 
 describe("From the storage module,", () => {
   describe("localValue", () => {

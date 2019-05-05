@@ -68,8 +68,19 @@ export function parseEl(target, html) {
 }
 
 export function getWindow(els) {
-  const document = els.ownerDocument || els[0].ownerDocument;
+  const document = getDocument(els);
   return document.defaultView || document.parentWindow;
+}
+
+export function getDocument(els) {
+  return (
+    els.ownerDocument ||
+    els.document ||
+    (els.documentElement && els) ||
+    els[0].ownerDocument ||
+    els[0].document ||
+    (els[0].documentElement && els[0])
+  );
 }
 
 export function hasClass(els, className) {

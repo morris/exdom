@@ -116,8 +116,11 @@
     return html;
   }
   function getWindow(els) {
-    var document = els.ownerDocument || els[0].ownerDocument;
+    var document = getDocument(els);
     return document.defaultView || document.parentWindow;
+  }
+  function getDocument(els) {
+    return els.ownerDocument || els.document || els.documentElement && els || els[0].ownerDocument || els[0].document || els[0].documentElement && els[0];
   }
   function hasClass(els, className) {
     var tmp = map(els, function (el) {
@@ -712,6 +715,7 @@
   exports.firstOf = firstOf;
   exports.forEach = forEach;
   exports.getClosestOfClass = getClosestOfClass;
+  exports.getDocument = getDocument;
   exports.getRefs = getRefs;
   exports.getValue = getValue;
   exports.getWindow = getWindow;

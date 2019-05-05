@@ -2,7 +2,7 @@
 import * as assert from "assert";
 import { JSDOM } from "jsdom";
 
-import { observe, send, emit } from "../src";
+import { observe, send, emit, listen } from "../src/events";
 
 describe("From the events module,", () => {
   describe("observe", () => {
@@ -161,6 +161,23 @@ describe("From the events module,", () => {
       await barp;
 
       assert.deepEqual(calls, ["bar", "foo"]);
+    });
+  });
+
+  describe("emit", () => {
+    it("should work with window", () => {
+      const dom = new JSDOM(
+        `<!DOCTYPE html><div id="test">div#test<p>p</p><p class="foo">p.foo</p></div>`
+      );
+      let ok = false;
+
+      listen(dom.window, "test", () => {
+        ok = true;
+      });
+
+      emit(dom.window, "test");
+
+      assert.ok(ok, "didn't work");
     });
   });
 });
