@@ -1,5 +1,6 @@
-.nyc_output
-coverage
-lib
-node_modules
-package-lock.json
+/.nyc_output
+/coverage
+/draft
+/lib
+/node_modules
+/package-lock.json

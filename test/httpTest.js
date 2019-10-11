@@ -1,16 +1,23 @@
 /* eslint-env node, mocha */
 import * as assert from "assert";
-import { JSDOM } from "jsdom";
 import express from "express";
 import bodyParser from "body-parser";
 import { readFileSync } from "fs";
+import { createFixture } from "./testHelpers";
 
-import { observe } from "../src/events";
-import { request } from "../src/http";
+const fetchPolyfill = readFileSync(
+  require.resolve("whatwg-fetch/dist/fetch.umd.js")
+).toString("utf-8");
 
-describe("From the http module,", () => {
-  describe("request", () => {
-    let app, server, dom, el;
+const fixture = `
+  <!DOCTYPE html>
+  <div id="test"></div>
+  <script>${fetchPolyfill}</script>
+`;
+
+describe("Exdom", () => {
+  describe(".request", () => {
+    let app, server;
 
     before(done => {
       app = express();
@@ -37,39 +44,26 @@ describe("From the http module,", () => {
       });
 
       server = app.listen(3999, done);
-
-      const fetchPolyfill = readFileSync(
-        require.resolve("whatwg-fetch/dist/fetch.umd.js")
-      ).toString("utf-8");
-
-      dom = new JSDOM(
-        `
-        <!DOCTYPE html>
-        <div id="test"></div>
-        <script>${fetchPolyfill}</script>
-      `,
-        { url: "http://localhost:3999", runScripts: "dangerously" }
-      );
-
-      el = dom.window.document.getElementById("test");
     });
 
     it("should get json (auto)", async () => {
+      const { $ } = createFixture(fixture);
+
       const events = [];
 
-      observe(el, $request => {
-        events.push($request);
+      $.on("request", ($, d) => {
+        events.push(d.request);
       });
 
-      observe(el, $response => {
-        events.push($response);
+      $.on("response", ($, d) => {
+        events.push(d.response);
       });
 
-      observe(el, $fullResponse => {
-        events.push($fullResponse);
+      $.on("fullResponse", ($, d) => {
+        events.push(d.fullResponse);
       });
 
-      const { req, res, body } = await request(el, {
+      const { req, res, body } = await $.request({
         url: "http://localhost:3999/hello"
       });
 
@@ -94,7 +88,9 @@ describe("From the http module,", () => {
     });
 
     it("should post json", async () => {
-      const { req, body } = await request(el, {
+      const { $ } = createFixture(fixture);
+
+      const { req, body } = await $.request({
         method: "POST",
         url: "http://localhost:3999/echo",
         body: {
@@ -122,14 +118,16 @@ describe("From the http module,", () => {
     });
 
     it("should handle errors", async () => {
+      const { $ } = createFixture(fixture);
+
       const events = [];
-      observe(el, $requestError => {
-        events.push($requestError);
+
+      $.on("requestError", ($, d) => {
+        events.push(d.requestError);
       });
 
       try {
-        await request(
-          el,
+        await $.request(
           {
             url: "http://localhost:3999/not-found",
             headers: {
@@ -163,41 +161,44 @@ describe("From the http module,", () => {
     });
 
     it("should always emit a requestDone event", async () => {
+      const { $ } = createFixture(fixture);
+
       const events = [];
-      observe(el, _request => {
-        events.push(_request);
+
+      $.on("request", ($, d, e) => {
+        events.push(e);
       });
-      observe(el, _response => {
-        events.push(_response);
+      $.on("response", ($, d, e) => {
+        events.push(e);
       });
-      observe(el, _fullResponse => {
-        events.push(_fullResponse);
+      $.on("fullResponse", ($, d, e) => {
+        events.push(e);
       });
-      observe(el, _requestError => {
-        events.push(_requestError);
+      $.on("requestDone", ($, d, e) => {
+        events.push(e);
       });
-      observe(el, _requestDone => {
-        events.push(_requestDone);
+      $.on("requestError", ($, d, e) => {
+        events.push(e);
       });
 
-      await request(el, { url: "http://localhost:3999/hello" });
+      await $.request({ url: "http://localhost:3999/hello" });
 
       try {
-        await request(el, { url: "http://localhost:3999/not-found" });
+        await $.request({ url: "http://localhost:3999/not-found" });
         assert.ok(false, "should have thrown");
       } catch (err) {
         assert.equal(err.res.status, 404);
       }
 
       try {
-        await request(el, { url: "http://localhost:3999/bad-json" });
+        await $.request({ url: "http://localhost:3999/bad-json" });
         assert.ok(false, "should have thrown");
       } catch (err) {
         assert.equal(err.message, "Unexpected token h in JSON at position 1");
       }
 
       try {
-        await request(el, { url: "http://23re7ged.asd234.sadi23a.a2q3" });
+        await $.request({ url: "http://23re7ged.asd234.sadi23a.a2q3" });
         assert.ok(false, "should have thrown");
       } catch (err) {
         assert.equal(err.message, "Network request failed");

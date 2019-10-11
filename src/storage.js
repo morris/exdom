@@ -1,24 +1,25 @@
 import { listen, emit } from "./events";
 import { getWindow } from "./util";
 
-export function sessionValue(els, key, def) {
-  return storageValue(els, "sessionStorage", key, def);
+export function sessionValue(el, key, def) {
+  return storageValue(el, "sessionStorage", key, def);
 }
 
-export function localValue(els, key, def) {
-  return storageValue(els, "localStorage", key, def);
+export function localValue(el, key, def) {
+  return storageValue(el, "localStorage", key, def);
 }
 
-export function storageValue(els, storageName, key, def) {
+export function storageValue(el, storageName, key, def) {
   if (typeof key === "object") {
     return Object.keys(key).forEach(k => {
-      storageValue(els, storageName, k, key[k]);
+      storageValue(el, storageName, k, key[k]);
     });
   }
 
-  const storage = getWindow(els)[storageName];
+  const window = getWindow(el);
+  const storage = window[storageName];
 
-  listen(els, key, e => {
+  listen(el, key, e => {
     if (e.__storageValue) return;
     e.__storageValue = true;
 
@@ -29,18 +30,15 @@ export function storageValue(els, storageName, key, def) {
     }
   });
 
-  listen(els, "readStorage", () => {
-    const raw = storage[key];
+  const raw = storage[key];
 
-    if (typeof raw === "string") {
-      try {
-        return emit(els, key, JSON.parse(raw));
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn(err);
-      }
+  if (typeof raw === "string") {
+    try {
+      return emit(el, key, JSON.parse(raw));
+    } catch (err) {
+      console.warn(err); // eslint-disable-line no-console
     }
+  }
 
-    emit(els, key, def);
-  });
+  emit(el, key, def);
 }

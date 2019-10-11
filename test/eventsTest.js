@@ -1,23 +1,21 @@
 /* eslint-env node, mocha */
 import * as assert from "assert";
-import { JSDOM } from "jsdom";
+import { createFixture } from "./testHelpers";
+import { listen, emit } from "../src/events";
 
-import { observe, send, emit, listen } from "../src/events";
-
-describe("From the events module,", () => {
-  describe("observe", () => {
+describe("Exdom", () => {
+  describe(".on", () => {
     it("should observe events and call the handler correctly", () => {
-      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById("test");
+      const { $ } = createFixture();
       const calls = [];
 
-      observe(test, (foo, bar, baz) => {
-        calls.push([foo, bar, baz]);
+      $.on("foo bar baz", ($, d) => {
+        calls.push([d.foo, d.bar, d.baz]);
       });
 
-      send(test, "foo", 1);
-      send(test, "bar", 2);
-      send(test, "baz", 3);
+      $.send("foo", 1);
+      $.send("bar", 2);
+      $.send("baz", 3);
 
       assert.deepStrictEqual(calls, [
         [1, undefined, undefined],
@@ -26,95 +24,52 @@ describe("From the events module,", () => {
       ]);
     });
 
-    it("should observe events and call the handler with combined data if defer is set", done => {
-      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById("test");
-      const calls = [];
-
-      observe(test, { defer: 1 }, (foo, bar, baz) => {
-        calls.push([foo, bar, baz]);
-      });
-
-      send(test, "foo", 1);
-      send(test, "bar", 2);
-      send(test, "baz", 3);
-
-      setTimeout(() => {
-        assert.deepStrictEqual(calls, [[1, 2, 3]]);
-        done();
-      }, 1);
-    });
-
     it("should observe volatile events and call the handler correctly", () => {
-      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById("test");
+      const { $ } = createFixture();
       const calls = [];
 
-      observe(test, (foo, bar, $baz) => {
-        calls.push([foo, bar, $baz]);
+      $.on("foo bar $baz", ($, d) => {
+        calls.push([d.foo, d.bar, d.baz]);
       });
 
-      send(test, "foo", 1);
-      send(test, "bar", 2);
-      send(test, "baz", 3);
-      send(test, "foo", 4);
-      send(test, "bar", 5);
+      $.send("foo", 1);
+      $.send("bar", 2);
+      $.send("baz", 3);
+      $.send("foo", 4);
+      $.send("bar", 5);
 
       assert.deepStrictEqual(calls, [[1, 2, 3]]);
     });
 
-    it("should observe full events and call the handler correctly", () => {
-      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById("test");
-      const calls = [];
-
-      observe(test, (foo, bar, _baz) => {
-        assert.equal(_baz.detail, 3);
-        calls.push([foo, bar, _baz]);
-      });
-
-      send(test, "foo", 1);
-      send(test, "bar", 2);
-      send(test, "baz", 3);
-      send(test, "foo", 4);
-      send(test, "bar", 5);
-
-      assert.deepStrictEqual(calls, [
-        [1, 2, new dom.window.CustomEvent("baz", {})]
-      ]);
-    });
-
-    it("should validate the target option if given (volatile only)", () => {
-      const dom = new JSDOM(
+    it("should handle selector delegation properly", () => {
+      const { $ } = createFixture(
         `<!DOCTYPE html><div id="test">div#test<p>p</p><p class="foo">p.foo</p></div>`
       );
-      const test = dom.window.document.getElementById("test");
       const calls = [];
-      const p = test.getElementsByTagName("p");
 
-      observe(test, { target: p }, ($foo, bar) => {
-        calls.push([$foo, bar]);
+      $.on("$foo bar @ p", ($, d) => {
+        calls.push([d.foo, d.bar]);
       });
 
-      observe(test, { target: p[0] }, ($foo, bar) => {
-        calls.push([$foo, bar]);
+      $.on("$foo bar @ p:first-child", ($, d) => {
+        calls.push([d.foo, d.bar]);
       });
 
-      observe(test, { targetClass: "foo" }, ($foo, bar) => {
-        calls.push([$foo, bar]);
+      $.on("$foo bar @ .foo", ($, d) => {
+        calls.push([d.foo, d.bar]);
       });
 
-      emit(test, "foo", 1);
-      emit(p, "foo", 2);
-      emit(p[0], "foo", 3);
-      emit(p[1], "foo", 4);
+      $.emit("foo", 1);
+      $.find("p").emit("foo", 2);
+      $.find("p:first-child").emit("foo", 3);
+      $.find("p:nth-child(1)").emit("foo", 4);
 
-      emit(test, "bar", 5);
+      $.find("p").emit("bar", 5);
 
-      emit(test, "foo", 1);
-      emit(p, "foo", 2);
-      emit(p[0], "foo", 3);
-      emit(p[1], "foo", 4);
+      $.emit("foo", 1);
+      $.find("p").emit("foo", 2);
+      $.find("p:first-child").emit("foo", 3);
+      $.find("p:nth-child(1)").emit("foo", 4);
 
       assert.deepEqual(calls, [
         [2, undefined],
@@ -137,14 +92,13 @@ describe("From the events module,", () => {
     });
 
     it("should work with async functions (with explicit types)", async () => {
-      const dom = new JSDOM(
+      const { $ } = createFixture(
         `<!DOCTYPE html><div id="test">div#test<p>p</p><p class="foo">p.foo</p></div>`
       );
-      const test = dom.window.document.getElementById("test");
       const calls = [];
 
-      observe(test, "foo", async foo => {
-        calls.push(await foo);
+      $.on("foo", async ($, d) => {
+        calls.push(await d.foo);
       });
 
       const foop = new Promise(resolve =>
@@ -154,50 +108,19 @@ describe("From the events module,", () => {
         setTimeout(() => resolve("bar"), 100)
       );
 
-      send(test, "foo", foop);
-      send(test, "foo", barp);
+      $.send("foo", foop);
+      $.send("foo", barp);
 
       await foop;
       await barp;
 
       assert.deepEqual(calls, ["bar", "foo"]);
     });
-
-    it("should work with an object argument", () => {
-      const dom = new JSDOM(`<!DOCTYPE html><div id="test"></div>`);
-      const test = dom.window.document.getElementById("test");
-      const calls = [];
-
-      observe(test, {
-        types: "foo, bar",
-        handler(x, y) {
-          calls.push([x, y]);
-        }
-      });
-
-      observe(test, {
-        types: ["bar", "baz"],
-        handler(x, y) {
-          calls.push([x, y]);
-        }
-      });
-
-      send(test, "foo", 1);
-      send(test, "bar", 2);
-      send(test, "baz", 3);
-
-      assert.deepStrictEqual(calls, [
-        [1, undefined],
-        [1, 2],
-        [2, undefined],
-        [2, 3]
-      ]);
-    });
   });
 
   describe("emit", () => {
     it("should work with window", () => {
-      const dom = new JSDOM(
+      const { dom } = createFixture(
         `<!DOCTYPE html><div id="test">div#test<p>p</p><p class="foo">p.foo</p></div>`
       );
       let ok = false;

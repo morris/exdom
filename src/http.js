@@ -1,8 +1,8 @@
 import { emit } from "./events";
 import { getWindow } from "./util";
 
-export function request(els, options, extra) {
-  const { fetch } = getWindow(els);
+export function request(el, options, extra) {
+  const { fetch } = getWindow(el);
 
   const options_ = typeof options === "string" ? { url: options } : options;
 
@@ -10,11 +10,11 @@ export function request(els, options, extra) {
     read: "auto",
     ...options_,
     ...extra,
-    headers: buildHeaders(els, options_, extra),
-    body: buildBody(els, options_, extra)
+    headers: buildHeaders(el, options_, extra),
+    body: buildBody(el, options_, extra)
   };
 
-  emit(els, "request", req);
+  emit(el, "request", req);
 
   let res, body;
 
@@ -22,21 +22,21 @@ export function request(els, options, extra) {
     .then(r => {
       res = r;
 
-      emit(els, "response", { req, res });
+      emit(el, "response", { req, res });
 
       if (!req.read) return;
 
-      return readResponse(els, res, req.read).then(b => {
+      return readResponse(el, res, req.read).then(b => {
         body = b;
-        emit(els, "fullResponse", { req, res, body });
+        emit(el, "fullResponse", { req, res, body });
       });
     })
     .then(() => {
-      if (res.status >= 400) {
+      if (!res.ok) {
         throw new Error(`Status code error ${res.status}`);
       }
 
-      emit(els, "requestDone");
+      emit(el, "requestDone");
 
       return { req, res, body };
     })
@@ -45,8 +45,8 @@ export function request(els, options, extra) {
       err.res = res;
       err.body = body;
 
-      emit(els, "requestError", err);
-      emit(els, "requestDone");
+      emit(el, "requestError", err);
+      emit(el, "requestDone");
 
       throw err;
     });

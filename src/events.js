@@ -1,149 +1,108 @@
-import { forEach, getWindow, getClosestOfClass, contain } from "./util";
+import { getWindow } from "./util";
+import { matches } from "./selector";
 
-export function observe(els, options, extra) {
-  const o = {
-    ...parseOptions(options),
-    ...parseOptions(extra)
-  };
+export function observe(el, eventSelectors, handler) {
+  const es = Array.isArray(eventSelectors) ? eventSelectors : [eventSelectors];
+  const types = [];
+  const cache = {};
+  let triggerRequired = false;
 
-  let hasVolatile = false;
-
-  const typeNames = o.types || parseArgumentNames(o.handler);
-  const types = typeNames.map(name => {
-    const full = name[0] === "_";
-    const volatile = full || name[0] === "$";
-
-    if (volatile) hasVolatile = true;
-
-    return {
-      name: volatile ? name.slice(1) : name,
-      volatile,
-      full
-    };
+  es.forEach(o => {
+    parseEventSelector(o).forEach(it => {
+      if (it.trigger) triggerRequired = true;
+      types.push(it);
+    });
   });
 
-  forEach(els, el => {
-    const cache = [];
-    cache.length = types.length;
+  types.forEach(type => {
+    const { name, trigger, selector } = type;
 
-    let deferTimeout;
+    listen(el, name, e => {
+      if (selector && !matches(e.target, selector, el)) return;
+      if (!trigger) {
+        cache[name] = e.detail;
+        if (triggerRequired) return;
+      }
 
-    types.forEach((type, index) => {
-      listen(el, type.name, e => {
-        if (type.volatile) {
-          // delegation
-          if (o.targetClass && !getClosestOfClass(e.target, o.targetClass)) {
-            return;
-          } else if (o.target && !contain(o.target, e.target)) {
-            return;
-          }
-        } else {
-          cache[index] = e.detail;
-        }
+      const details = { ...cache };
+      if (trigger) details[name] = e.detail;
 
-        if (!hasVolatile || type.volatile) {
-          if (o.defer) {
-            clearTimeout(deferTimeout);
-            deferTimeout = setTimeout(callHandler, o.defer);
-          } else {
-            callHandler();
-          }
-        }
-
-        function callHandler() {
-          if (type.volatile) {
-            const args = cache.slice(0);
-            args[index] = type.full ? e : e.detail;
-            o.handler.apply(null, args);
-          } else {
-            o.handler.apply(null, cache);
-          }
-        }
-      });
+      handler(details, e);
     });
   });
 }
 
-export function relay(els, type, targets) {
-  listen(els, type, e => {
-    send(targets, type, e.detail);
-  });
+export function listen(el, type, handler, options) {
+  const h = e => {
+    try {
+      return handler(e);
+    } catch (err) {
+      emit(el, "error", err);
+    }
+  };
+
+  el.addEventListener(type, h, options || false);
+
+  return h;
 }
 
-export function listen(els, type, listener, options) {
-  forEach(els, el => {
-    el.addEventListener(
-      type,
-      e => {
-        try {
-          return listener(e);
-        } catch (ex) {
-          emit(el, "error", ex);
-        }
-      },
-      options || false
+export function emit(el, type, detail) {
+  dispatch(el, type, detail, true);
+}
+
+export function send(el, type, detail) {
+  dispatch(el, type, detail, false);
+}
+
+export function dispatch(el, type, detail, bubbles) {
+  if (typeof type === "object") {
+    Object.keys(type).forEach(t => {
+      dispatch(el, t, type[t], bubbles);
+    });
+
+    return;
+  }
+
+  const { CustomEvent } = getWindow(el);
+
+  try {
+    el.dispatchEvent(
+      new CustomEvent(type, {
+        detail,
+        bubbles
+      })
     );
-  });
-}
-
-export function send(els, type, detail) {
-  if (!els || (!els.addEventListener && els.length === 0)) return;
-
-  const { CustomEvent } = getWindow(els);
-
-  dispatch(
-    els,
-    new CustomEvent(type, {
-      detail: arguments.length === 2 ? {} : detail,
-      bubbles: false
-    })
-  );
-}
-
-export function emit(els, type, detail) {
-  if (!els || (!els.addEventListener && els.length === 0)) return;
-
-  const { CustomEvent } = getWindow(els);
-
-  dispatch(
-    els,
-    new CustomEvent(type, {
-      detail: arguments.length === 2 ? {} : detail,
-      bubbles: true
-    })
-  );
-}
-
-export function dispatch(els, e) {
-  forEach(els, el => {
-    el.dispatchEvent(e);
-  });
+  } catch (err) {
+    try {
+      el.dispatchEvent(
+        new CustomEvent("error", {
+          err,
+          bubbles: true
+        })
+      );
+    } catch (err_) {
+      // last resort
+      console.error(err); // eslint-disable-line no-console
+      console.error(err_); // eslint-disable-line no-console
+    }
+  }
 }
 
 //
 
-function parseOptions(options) {
-  if (typeof options === "string") return { types: split(options) };
-  if (Array.isArray(options)) return { types: options };
-  if (typeof options === "function") return { handler: options };
-  if (!options) return {};
-  if (typeof options.types === "string")
-    return {
-      ...options,
-      types: split(options.types)
-    };
-  return options;
-}
+function parseEventSelector(eventSelector) {
+  const s = eventSelector.split(/@/);
 
-function parseArgumentNames(fn) {
-  const m = fn
-    .toString()
-    .match(/^function[^(]*\(([^)]*)\)|^\(([^)]*)\)|^([a-zA-Z$_][^=]*)/);
-  const args = m[1] || m[2] || m[3];
+  return s[0]
+    .split(/[\s,]+/)
+    .filter(type => type.length > 0)
+    .map(type => {
+      const trigger = type[0] === "$";
 
-  return split(args).filter(arg => !!arg);
-}
-
-function split(csv) {
-  return csv.split(",").map(v => v.trim());
+      return {
+        name: trigger ? type.slice(1) : type,
+        trigger,
+        selector: s[1]
+      };
+    });
 }

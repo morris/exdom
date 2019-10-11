@@ -1,24 +1,20 @@
 /* eslint-env node, mocha */
 import * as assert from "assert";
-import { JSDOM } from "jsdom";
+import { createFixture } from "./testHelpers";
 
-import { setValue, getValue } from "../src/forms";
-
-describe("From the forms module,", () => {
-  describe("setValue and getValue", () => {
+describe("Exdom", () => {
+  describe(".value", () => {
     it("should set and get form input values", () => {
-      const dom = new JSDOM(`
+      const { $ } = createFixture(`
         <!DOCTYPE html>
         <div id="test">
           <input type="text" id="foo">
         </div>
       `);
-      const document = dom.window.document;
-      const foo = document.getElementById("foo");
 
-      setValue(foo, "test");
+      $.find("#foo").value("test");
 
-      assert.equal(getValue(foo), "test");
+      assert.equal($.find("#foo").value(), "test");
     });
   });
 });
