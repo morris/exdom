@@ -649,16 +649,43 @@
     });
   }
 
-  function sessionValue(el, key, def) {
-    return storageValue(el, "sessionStorage", key, def);
+  function readLocal(el, key, def) {
+    return readStorage(el, "localStorage", key, def);
   }
-  function localValue(el, key, def) {
-    return storageValue(el, "localStorage", key, def);
+  function readSession(el, key, def) {
+    return readStorage(el, "sessionStorage", key, def);
   }
-  function storageValue(el, storageName, key, def) {
+  function writeLocal(el, key) {
+    return writeStorage(el, "localStorage", key);
+  }
+  function writeSession(el, key) {
+    return writeStorage(el, "sessionStorage", key);
+  }
+  function readStorage(el, storageName, key, def) {
     if (_typeof(key) === "object") {
       return Object.keys(key).forEach(function (k) {
-        storageValue(el, storageName, k, key[k]);
+        readStorage(el, storageName, k, key[k]);
+      });
+    }
+
+    var window = getWindow(el);
+    var storage = window[storageName];
+    var raw = storage[key];
+
+    if (typeof raw === "string") {
+      try {
+        return emit(el, key, JSON.parse(raw));
+      } catch (err) {
+        console.warn(err); // eslint-disable-line no-console
+      }
+    }
+
+    emit(el, key, def);
+  }
+  function writeStorage(el, storageName, key) {
+    if (Array.isArray(key)) {
+      return key.forEach(function (k) {
+        writeStorage(el, storageName, k);
       });
     }
 
@@ -673,17 +700,6 @@
         storage[key] = raw;
       }
     });
-    var raw = storage[key];
-
-    if (typeof raw === "string") {
-      try {
-        return emit(el, key, JSON.parse(raw));
-      } catch (err) {
-        console.warn(err); // eslint-disable-line no-console
-      }
-    }
-
-    emit(el, key, def);
   }
 
   function exdom(els) {
@@ -938,19 +954,37 @@
       } // storage
 
     }, {
-      key: "local",
-      value: function local(key, def) {
+      key: "readLocal",
+      value: function readLocal$1(key, def) {
         forEach(this.els, function (el) {
-          return localValue(el, key, def);
+          return readLocal(el, key, def);
         });
 
         return this;
       }
     }, {
-      key: "session",
-      value: function session(key, def) {
+      key: "readSession",
+      value: function readSession$1(key, def) {
         forEach(this.els, function (el) {
-          return sessionValue(el, key, def);
+          return readSession(el, key, def);
+        });
+
+        return this;
+      }
+    }, {
+      key: "writeLocal",
+      value: function writeLocal$1(key) {
+        forEach(this.els, function (el) {
+          return writeLocal(el, key);
+        });
+
+        return this;
+      }
+    }, {
+      key: "writeSession",
+      value: function writeSession$1(key) {
+        forEach(this.els, function (el) {
+          return writeSession(el, key);
         });
 
         return this;
@@ -981,25 +1015,28 @@
   exports.getWindow = getWindow;
   exports.hasClass = hasClass;
   exports.listen = listen;
-  exports.localValue = localValue;
   exports.map = map;
   exports.matches = matches;
   exports.mount = mount;
   exports.observe = observe;
   exports.parseEl = parseEl;
+  exports.readLocal = readLocal;
   exports.readResponse = readResponse;
+  exports.readSession = readSession;
+  exports.readStorage = readStorage;
   exports.request = request;
   exports.requireId = requireId;
   exports.send = send;
-  exports.sessionValue = sessionValue;
   exports.setAttr = setAttr;
   exports.setChildren = setChildren;
   exports.setClass = setClass;
   exports.setHtml = setHtml;
   exports.setText = setText;
   exports.setValue = setValue;
-  exports.storageValue = storageValue;
   exports.toValue = toValue;
+  exports.writeLocal = writeLocal;
+  exports.writeSession = writeSession;
+  exports.writeStorage = writeStorage;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

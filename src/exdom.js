@@ -5,7 +5,7 @@ import { setValue, getValue } from "./forms";
 import { request } from "./http";
 import { find, matches, hasClass, getClosest } from "./selector";
 import { mount } from "./mount";
-import { localValue, sessionValue } from "./storage";
+import { readLocal, readSession, writeLocal, writeSession } from "./storage";
 
 export function exdom(els) {
   if (!els) return new Exdom([]);
@@ -207,13 +207,23 @@ export class Exdom {
 
   // storage
 
-  local(key, def) {
-    forEach(this.els, el => localValue(el, key, def));
+  readLocal(key, def) {
+    forEach(this.els, el => readLocal(el, key, def));
     return this;
   }
 
-  session(key, def) {
-    forEach(this.els, el => sessionValue(el, key, def));
+  readSession(key, def) {
+    forEach(this.els, el => readSession(el, key, def));
+    return this;
+  }
+
+  writeLocal(key) {
+    forEach(this.els, el => writeLocal(el, key));
+    return this;
+  }
+
+  writeSession(key) {
+    forEach(this.els, el => writeSession(el, key));
     return this;
   }
 }

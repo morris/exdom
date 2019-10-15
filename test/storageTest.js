@@ -9,11 +9,13 @@ describe("From the storage module,", () => {
 
       const foos = [];
 
+      $.writeLocal("foo");
+
       $.on("foo", ($, d) => {
         foos.push(d.foo);
       });
 
-      $.local("foo", { bar: 1 });
+      $.readLocal("foo", { bar: 1 });
 
       $.emit("foo", { bar: 2 });
 
@@ -31,11 +33,13 @@ describe("From the storage module,", () => {
       const { $, dom } = createFixture();
       const results = [];
 
+      $.writeLocal(["foo", "bar"]);
+
       $.on("foo, bar", ($, d) => {
         results.push([d.foo, d.bar]);
       });
 
-      $.local({
+      $.readLocal({
         foo: "foo",
         bar: "bar"
       });
