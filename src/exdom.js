@@ -5,7 +5,7 @@ import { setValue, getValue } from "./forms";
 import { request } from "./http";
 import { find, matches, hasClass, getClosest } from "./selector";
 import { mount } from "./mount";
-import { readLocal, readSession, writeLocal, writeSession } from "./storage";
+import { store, restore } from "./storage";
 
 export function exdom(els) {
   if (!els) return new Exdom([]);
@@ -82,7 +82,7 @@ export class Exdom {
   // util
 
   forEach(fn) {
-    forEach(this.els, el => fn(new this.constructor(el)));
+    forEach(this.els, (el, index) => fn(new this.constructor([el]), index));
 
     return this;
   }
@@ -93,7 +93,7 @@ export class Exdom {
     }
 
     return new this.constructor(
-      filter(this.els, el => fn(new this.constructor(el)))
+      filter(this.els, (el, index) => fn(new this.constructor([el]), index))
     );
   }
 
@@ -161,11 +161,7 @@ export class Exdom {
   // events
 
   on(eventSelectors, handler) {
-    forEach(this.els, el =>
-      observe(el, eventSelectors, (d, e) => {
-        handler(this, d, e);
-      })
-    );
+    forEach(this.els, el => observe(el, eventSelectors, handler));
 
     return this;
   }
@@ -207,23 +203,23 @@ export class Exdom {
 
   // storage
 
-  readLocal(key, def) {
-    forEach(this.els, el => readLocal(el, key, def));
+  storeLocal(key) {
+    forEach(this.els, el => store(el, 'localStorage', key));
     return this;
   }
 
-  readSession(key, def) {
-    forEach(this.els, el => readSession(el, key, def));
+  storeSession(key) {
+    forEach(this.els, el => store(el, 'sessionStorage', key));
     return this;
   }
 
-  writeLocal(key) {
-    forEach(this.els, el => writeLocal(el, key));
+  restoreLocal(key, def) {
+    forEach(this.els, el => restore(el, 'localStorage', key, def));
     return this;
   }
 
-  writeSession(key) {
-    forEach(this.els, el => writeSession(el, key));
+  restoreSession(key, def) {
+    forEach(this.els, el => restore(el, 'sessionStorage', key, def));
     return this;
   }
 }

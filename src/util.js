@@ -50,7 +50,7 @@ export function map(els, fn) {
   const result = [];
 
   for (let i = 0, l = els.length; i < l; ++i) {
-    result.push(fn(els[i]));
+    result.push(fn(els[i], i));
   }
 
   return result;

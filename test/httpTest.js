@@ -51,15 +51,15 @@ describe("Exdom", () => {
 
       const events = [];
 
-      $.on("request", ($, d) => {
+      $.on("request", d => {
         events.push(d.request);
       });
 
-      $.on("response", ($, d) => {
+      $.on("response", d => {
         events.push(d.response);
       });
 
-      $.on("fullResponse", ($, d) => {
+      $.on("fullResponse", d => {
         events.push(d.fullResponse);
       });
 
@@ -122,7 +122,7 @@ describe("Exdom", () => {
 
       const events = [];
 
-      $.on("requestError", ($, d) => {
+      $.on("requestError", d => {
         events.push(d.requestError);
       });
 
@@ -165,20 +165,20 @@ describe("Exdom", () => {
 
       const events = [];
 
-      $.on("request", ($, d, e) => {
-        events.push(e);
+      $.on("request", ({ $event }) => {
+        events.push($event);
       });
-      $.on("response", ($, d, e) => {
-        events.push(e);
+      $.on("response", ({ $event }) => {
+        events.push($event);
       });
-      $.on("fullResponse", ($, d, e) => {
-        events.push(e);
+      $.on("fullResponse", ({ $event }) => {
+        events.push($event);
       });
-      $.on("requestDone", ($, d, e) => {
-        events.push(e);
+      $.on("requestDone", ({ $event }) => {
+        events.push($event);
       });
-      $.on("requestError", ($, d, e) => {
-        events.push(e);
+      $.on("requestError", ({ $event }) => {
+        events.push($event);
       });
 
       await $.request({ url: "http://localhost:3999/hello" });

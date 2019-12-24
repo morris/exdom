@@ -2,58 +2,56 @@
 import * as assert from "assert";
 import { createFixture } from "./testHelpers";
 
-describe("From the storage module,", () => {
-  describe("localValue", () => {
-    it("should read/write event details to localStorage", () => {
-      const { $, dom } = createFixture();
+describe("A user", () => {
+  it("should be able to store/restore event details to/from localStorage", () => {
+    const { $, dom } = createFixture();
 
-      const foos = [];
+    const foos = [];
 
-      $.writeLocal("foo");
+    $.storeLocal("foo");
 
-      $.on("foo", ($, d) => {
-        foos.push(d.foo);
-      });
-
-      $.readLocal("foo", { bar: 1 });
-
-      $.emit("foo", { bar: 2 });
-
-      assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }]);
-      assert.deepEqual(JSON.parse(dom.window.localStorage.foo), { bar: 2 });
-
-      $.emit("foo", { bar: 3 });
-
-      assert.deepEqual(JSON.parse(dom.window.localStorage.foo), { bar: 3 });
-
-      assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }, { bar: 3 }]);
+    $.on("foo", d => {
+      foos.push(d.foo);
     });
 
-    it("should handle multiple keys when given an object", () => {
-      const { $, dom } = createFixture();
-      const results = [];
+    $.restoreLocal("foo", { bar: 1 });
 
-      $.writeLocal(["foo", "bar"]);
+    $.emit("foo", { bar: 2 });
 
-      $.on("foo, bar", ($, d) => {
-        results.push([d.foo, d.bar]);
-      });
+    assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }]);
+    assert.deepEqual(JSON.parse(dom.window.localStorage.foo), { bar: 2 });
 
-      $.readLocal({
-        foo: "foo",
-        bar: "bar"
-      });
+    $.emit("foo", { bar: 3 });
 
-      $.send("foo", "baz");
+    assert.deepEqual(JSON.parse(dom.window.localStorage.foo), { bar: 3 });
 
-      assert.deepEqual(results, [
-        ["foo", undefined],
-        ["foo", "bar"],
-        ["baz", "bar"]
-      ]);
+    assert.deepEqual(foos, [{ bar: 1 }, { bar: 2 }, { bar: 3 }]);
+  });
 
-      assert.equal(JSON.parse(dom.window.localStorage.foo), "baz");
-      assert.equal(JSON.parse(dom.window.localStorage.bar), "bar");
+  it("should be able to store/restore event details when providing an object", () => {
+    const { $, dom } = createFixture();
+    const results = [];
+
+    $.storeLocal(["foo", "bar"]);
+
+    $.on("foo, bar", d => {
+      results.push([d.foo, d.bar]);
     });
+
+    $.restoreLocal({
+      foo: "foo",
+      bar: "bar"
+    });
+
+    $.send("foo", "baz");
+
+    assert.deepEqual(results, [
+      ["foo", undefined],
+      ["foo", "bar"],
+      ["baz", "bar"]
+    ]);
+
+    assert.equal(JSON.parse(dom.window.localStorage.foo), "baz");
+    assert.equal(JSON.parse(dom.window.localStorage.bar), "bar");
   });
 });

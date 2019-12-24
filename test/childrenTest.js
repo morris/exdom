@@ -41,8 +41,8 @@ describe("Exdom", () => {
       const { $ } = createFixture();
 
       $.for("p", $ => {
-        $.on("pass", ($, d) => {
-          $.html(d.pass);
+        $.on("pass", ({ pass }) => {
+          $.html(pass);
         });
       });
 

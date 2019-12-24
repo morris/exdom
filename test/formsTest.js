@@ -4,17 +4,37 @@ import { createFixture } from "./testHelpers";
 
 describe("Exdom", () => {
   describe(".value", () => {
-    it("should set and get form input values", () => {
+    it("should get and set form input values", () => {
       const { $ } = createFixture(`
         <!DOCTYPE html>
         <div id="test">
-          <input type="text" id="foo">
+          <input type="text" id="foo" value="bar">
         </div>
       `);
 
-      $.find("#foo").value("test");
+      assert.equal($.find("#foo").value(), "bar");
 
-      assert.equal($.find("#foo").value(), "test");
+      $.find("#foo").value("baz");
+
+      assert.equal($.find("#foo").value(), "baz");
+    });
+
+    it("should get and set form select values", () => {
+      const { $ } = createFixture(`
+        <!DOCTYPE html>
+        <div id="test">
+          <select id="foo">
+            <option value="a">a</option>
+            <option value="b" selected>a</option>
+          </select>
+        </div>
+      `);
+
+      assert.equal($.find("#foo").value(), "b");
+
+      $.find("#foo").value("a");
+
+      assert.equal($.find("#foo").value(), "a");
     });
   });
 });

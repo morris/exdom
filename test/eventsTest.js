@@ -9,8 +9,9 @@ describe("Exdom", () => {
       const { $ } = createFixture();
       const calls = [];
 
-      $.on("foo bar baz", ($, d) => {
-        calls.push([d.foo, d.bar, d.baz]);
+      $.on("foo bar baz", ({ foo, bar, baz, $event }) => {
+        assert.ok($event);
+        calls.push([foo, bar, baz]);
       });
 
       $.send("foo", 1);
@@ -28,7 +29,7 @@ describe("Exdom", () => {
       const { $ } = createFixture();
       const calls = [];
 
-      $.on("foo bar $baz", ($, d) => {
+      $.on("foo bar $baz", d => {
         calls.push([d.foo, d.bar, d.baz]);
       });
 
@@ -47,15 +48,15 @@ describe("Exdom", () => {
       );
       const calls = [];
 
-      $.on("$foo bar @ p", ($, d) => {
+      $.on("$foo bar @ p", d => {
         calls.push([d.foo, d.bar]);
       });
 
-      $.on("$foo bar @ p:first-child", ($, d) => {
+      $.on("$foo bar @ p:first-child", d => {
         calls.push([d.foo, d.bar]);
       });
 
-      $.on("$foo bar @ .foo", ($, d) => {
+      $.on("$foo bar @ .foo", d => {
         calls.push([d.foo, d.bar]);
       });
 
@@ -97,7 +98,7 @@ describe("Exdom", () => {
       );
       const calls = [];
 
-      $.on("foo", async ($, d) => {
+      $.on("foo", async d => {
         calls.push(await d.foo);
       });
 
