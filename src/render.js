@@ -55,16 +55,51 @@ export function setHtml(el, html) {
 }
 
 export function setAttr(el, name, value) {
+  if (typeof name === 'object') {
+    for (const key of Object.keys(name)) {
+      setAttr(el, key, name[key]);
+    }
+
+    return;
+  }
+
   if (!el.__attr) el.__attr = {};
+
   if (
     !Object.prototype.hasOwnProperty.call(el.__attr, name) ||
     el.__attr[name] !== value
   ) {
     el.__attr[name] = value;
+
     if (typeof value === "undefined" || value === null) {
-      el.removeAttribute(name, value);
+      el.removeAttribute(name);
     } else {
       el.setAttribute(name, value);
+    }
+  }
+}
+
+export function setStyle(el, name, value) {
+  if (typeof name === 'object') {
+    for (const key of Object.keys(name)) {
+      setStyle(el, key, name[key]);
+    }
+
+    return;
+  }
+
+  if (!el.__style) el.__style = {};
+
+  if (
+    !Object.prototype.hasOwnProperty.call(el.__style, name) ||
+    el.__style[name] !== value
+  ) {
+    el.__style[name] = value;
+
+    if (typeof value === "undefined" || value === null) {
+      delete el.style[name];
+    } else {
+      el.style[name] = value;
     }
   }
 }

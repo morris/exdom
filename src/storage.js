@@ -3,9 +3,11 @@ import { getWindow } from "./util";
 
 export function store(el, storageName, key) {
   if (Array.isArray(key)) {
-    return key.forEach(k => {
+    for (const k of key) {
       store(el, storageName, k);
-    });
+    }
+
+    return;
   }
 
   const window = getWindow(el);
@@ -25,9 +27,11 @@ export function store(el, storageName, key) {
 
 export function restore(el, storageName, key, def) {
   if (typeof key === "object") {
-    return Object.keys(key).forEach(k => {
+    for (const k of Object.keys(key)) {
       restore(el, storageName, k, key[k]);
-    });
+    }
+
+    return;
   }
 
   const window = getWindow(el);

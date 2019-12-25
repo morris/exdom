@@ -56,9 +56,9 @@ export function send(el, type, detail) {
 
 export function dispatch(el, type, detail, bubbles) {
   if (typeof type === "object") {
-    Object.keys(type).forEach(t => {
+    for (const t of Object.keys(type)) {
       dispatch(el, t, type[t], bubbles);
-    });
+    }
 
     return;
   }

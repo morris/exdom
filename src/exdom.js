@@ -1,6 +1,6 @@
 import { forEach, filter, BREAK } from "./util";
 import { observe, send, emit } from "./events";
-import { setAttr, setClass, setHtml, setText, setChildren } from "./render";
+import { setAttr, setStyle, setClass, setHtml, setText, setChildren } from "./render";
 import { setValue, getValue } from "./forms";
 import { request } from "./http";
 import { find, matches, hasClass, getClosest } from "./selector";
@@ -120,8 +120,14 @@ export class Exdom {
     return this;
   }
 
-  attr(key, value) {
-    forEach(this.els, el => setAttr(el, key, value));
+  attr(name, value) {
+    forEach(this.els, el => setAttr(el, name, value));
+
+    return this;
+  }
+
+  style(name, value) {
+    forEach(this.els, el => setStyle(el, name, value));
 
     return this;
   }

@@ -68,15 +68,15 @@ export function buildHeaders(context, options, extra) {
   }
 
   if (options && options.headers) {
-    Object.keys(options.headers).forEach(key => {
+    for (const key of Object.keys(options.headers)) {
       headers.set(key, options.headers[key]);
-    });
+    }
   }
 
   if (extra && extra.headers) {
-    Object.keys(extra.headers).forEach(key => {
+    for (const key of Object.keys(extra.headers)) {
       headers.set(key, extra.headers[key]);
-    });
+    }
   }
 
   return headers;
