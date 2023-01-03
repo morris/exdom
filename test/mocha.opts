@@ -1,4 +1,0 @@
---recursive
---require @babel/polyfill
---require @babel/register
---exit
