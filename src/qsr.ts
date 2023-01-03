@@ -1,5 +1,9 @@
 import { qs } from './qs.js';
 
+/**
+ * Shortcut for `querySelector` with `:scope` prefix;
+ * throws if no matching element is found
+ */
 export function qsr<T extends Element = HTMLElement>(
   scope: ParentNode,
   selectors: string

@@ -1,3 +1,6 @@
+/**
+ * Create and dispatch a non-bubbling custom event on the given target
+ */
 export function send<TDetails>(
   target: EventTarget,
   type: keyof TDetails,
