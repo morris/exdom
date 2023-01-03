@@ -33,9 +33,7 @@ test.describe('The qs function', () => {
       </script>
     `);
 
-    await expect(page.locator('.foo')).toHaveClass('foo selected1', {
-      timeout: 300000,
-    });
+    await expect(page.locator('.foo')).toHaveClass('foo selected1');
     await expect(page.locator('.bar').first()).toHaveClass('bar selected2');
     await expect(page.locator('div.bar')).toHaveClass('bar selected3');
     await expect(page.locator('.bar > .baz')).toHaveClass('baz selected4');

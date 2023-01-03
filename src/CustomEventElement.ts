@@ -1,6 +1,6 @@
 import type { CustomEventTarget } from './CustomEventTarget.js';
 
 export type CustomEventElement<
-  TCustomEventDetails,
+  TDetails,
   TElement = HTMLElement
-> = CustomEventTarget<TCustomEventDetails> & TElement;
+> = CustomEventTarget<TDetails> & TElement;
