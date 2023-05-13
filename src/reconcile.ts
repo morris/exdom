@@ -37,7 +37,7 @@ export function reconcile<TItem, TChild extends HTMLElement>(
       : typeof key === 'string'
       ? (item: TItem) => (item as Record<string, unknown>)[key]
       : (item: TItem) =>
-          (item as { id?: string }).id ?? (item as { key?: string }).key;
+          (item as { id?: unknown }).id ?? (item as { key?: unknown }).key;
 
   const toRemove = new Set(container.children) as Set<HTMLElement>;
   const childrenByKey = new Map();
@@ -45,7 +45,7 @@ export function reconcile<TItem, TChild extends HTMLElement>(
   toRemove.forEach((child) => childrenByKey.set(child.dataset.key, child));
 
   const children = items.map((item) => {
-    const key = getKey(item);
+    const key = `${getKey(item)}`;
     let child = childrenByKey.get(key);
 
     if (child) {
