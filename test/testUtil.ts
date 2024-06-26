@@ -4,8 +4,9 @@ import express from 'express';
 import { promises as fs } from 'fs';
 import { Server } from 'http';
 
-export function requireServer(t: typeof test) {
+export function useTestServer(t: typeof test) {
   const app = express();
+
   app.use('/build', express.static('build'));
   app.use('/test', express.static('test'));
 
@@ -43,7 +44,7 @@ export async function stopCoverage(page: Page) {
 
   await fs.writeFile(
     `coverage/tmp/${randomUUID()}.json`,
-    JSON.stringify({ result: result.map(rewriteUrl) })
+    JSON.stringify({ result: result.map(rewriteUrl) }),
   );
 }
 

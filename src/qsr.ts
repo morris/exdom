@@ -6,7 +6,7 @@ import { qs } from './qs.js';
  */
 export function qsr<T extends Element = HTMLElement>(
   scope: ParentNode,
-  selectors: string
+  selectors: string,
 ) {
   const el = qs<T>(scope, selectors);
 

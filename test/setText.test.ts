@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { requireServer, startCoverage, stopCoverage } from './testUtil';
+import { startCoverage, stopCoverage, useTestServer } from './testUtil';
 
-test.describe('The setText function', () => {
-  const getServer = requireServer(test);
+test.describe('setText', () => {
+  const getServer = useTestServer(test);
 
-  test('should set inner text of an element', async ({ page }) => {
+  test('sets inner text of an element', async ({ page }) => {
     await startCoverage(page);
 
     const { url } = getServer();

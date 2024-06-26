@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { requireServer, startCoverage, stopCoverage } from './testUtil';
+import { startCoverage, stopCoverage, useTestServer } from './testUtil';
 
-test.describe('The reconcile function', () => {
-  const getServer = requireServer(test);
+test.describe('reconcile', () => {
+  const getServer = useTestServer(test);
 
-  test('should reconcile a containers children by mapping given items to individual elements', async ({
+  test("reconciles a containers' children by mapping given items to individual elements", async ({
     page,
   }) => {
     await startCoverage(page);

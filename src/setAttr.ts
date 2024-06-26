@@ -2,19 +2,19 @@ import type { Guards } from './internal/Guards.js';
 
 export function setAttr(
   el: HTMLElement,
-  name: Record<string, string | number | true | null | undefined>
+  name: Record<string, string | number | true | null | undefined>,
 ): void;
 
 export function setAttr(
   el: HTMLElement,
   name: string,
-  value: string | number | true | null | undefined
+  value: string | number | true | null | undefined,
 ): void;
 
 export function setAttr(
   el: HTMLElement,
   name: string | Record<string, string | number | true | null | undefined>,
-  value?: string | number | true | null | undefined
+  value?: string | number | true | null | undefined,
 ) {
   if (typeof name !== 'string') {
     for (const [key, v] of Object.entries(name)) {

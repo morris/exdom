@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { requireServer, startCoverage, stopCoverage } from './testUtil';
+import { startCoverage, stopCoverage, useTestServer } from './testUtil';
 
-test.describe('The qs function', () => {
-  const getServer = requireServer(test);
+test.describe('qs', () => {
+  const getServer = useTestServer(test);
 
-  test('should select the first matching element for the given selectors', async ({
+  test('selects the first matching element for the given selectors', async ({
     page,
   }) => {
     await startCoverage(page);

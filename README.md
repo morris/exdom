@@ -12,7 +12,7 @@ a case study on viable techniques for vanilla web development.
 
 ## Installation
 
-Via NPM:
+Via npm:
 
 ```sh
 npm install exdom

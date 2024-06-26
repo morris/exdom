@@ -1,12 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { requireServer, startCoverage, stopCoverage } from './testUtil';
+import { startCoverage, stopCoverage, useTestServer } from './testUtil';
 
-test.describe('The nextFrame function', () => {
-  const getServer = requireServer(test);
+test.describe('nextFrame', () => {
+  const getServer = useTestServer(test);
 
-  test('should enqueue functions to run once in the next frame', async ({
-    page,
-  }) => {
+  test('enqueues functions to run once in the next frame', async ({ page }) => {
     await startCoverage(page);
 
     const { url } = getServer();

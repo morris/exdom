@@ -3,7 +3,7 @@ import { send } from './send.js';
 export function relay<TDetails>(
   source: EventTarget,
   type: keyof TDetails,
-  targets: EventTarget[]
+  targets: EventTarget[],
 ) {
   source.addEventListener(type as string, (e) => {
     for (const target of targets) {

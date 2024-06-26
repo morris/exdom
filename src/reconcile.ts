@@ -27,7 +27,7 @@ export interface ReconcileOptions<TItem, TChild extends HTMLElement> {
  * existing elements in the given container.
  */
 export function reconcile<TItem, TChild extends HTMLElement>(
-  options: ReconcileOptions<TItem, TChild>
+  options: ReconcileOptions<TItem, TChild>,
 ) {
   const { container, items, key, create, update } = options;
 
@@ -35,9 +35,9 @@ export function reconcile<TItem, TChild extends HTMLElement>(
     typeof key === 'function'
       ? key
       : typeof key === 'string'
-      ? (item: TItem) => (item as Record<string, unknown>)[key]
-      : (item: TItem) =>
-          (item as { id?: unknown }).id ?? (item as { key?: unknown }).key;
+        ? (item: TItem) => (item as Record<string, unknown>)[key]
+        : (item: TItem) =>
+            (item as { id?: unknown }).id ?? (item as { key?: unknown }).key;
 
   const toRemove = new Set(container.children) as Set<HTMLElement>;
   const childrenByKey = new Map();
