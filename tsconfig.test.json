@@ -1,7 +1,13 @@
 {
-  "extends": "./tsconfig.build.json",
+  "extends": "./tsconfig.json",
+  "include": ["src", "test"],
+  "exclude": ["*.test.ts"],
   "compilerOptions": {
-    "sourceMap": true,
-    "outDir": "build"
+    "noEmit": false,
+    "target": "ES6",
+    "module": "ES6",
+    "outDir": "test-build",
+    "declaration": true,
+    "sourceMap": true
   }
 }

@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["test"],
+  "include": ["src"],
   "compilerOptions": {
     "noEmit": false,
     "target": "ES6",

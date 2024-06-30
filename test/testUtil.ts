@@ -7,7 +7,7 @@ import { Server } from 'http';
 export function useTestServer(t: typeof test) {
   const app = express();
 
-  app.use('/build', express.static('build'));
+  app.use('/test-build', express.static('test-build'));
   app.use('/test', express.static('test'));
 
   let server: Server | undefined;

@@ -2,6 +2,8 @@
 
 ## NEXT
 
+- Update README
+- Add tests
 - Update deps
 
 ## 1.0.1

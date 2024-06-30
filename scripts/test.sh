@@ -1,6 +1,6 @@
 set -ex
 
-rm -rf build coverage
+rm -rf test-build coverage
 
 tsc --project tsconfig.test.json
 

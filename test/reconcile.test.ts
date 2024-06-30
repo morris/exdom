@@ -25,7 +25,7 @@ test.describe('reconcile', () => {
       </ul>
 
       <script type="module">
-        import { reconcile, qsr } from '../build/index.js';
+        import { reconcile, qsr } from '../test-build/src/index.js';
 
         reconcile({
           container: qsr(document, '.empty'),

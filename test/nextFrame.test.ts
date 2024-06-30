@@ -19,7 +19,7 @@ test.describe('nextFrame', () => {
       <p class="bar2"></p>
 
       <script type="module">
-        import { nextFrame, qsr } from '../build/index.js';
+        import { nextFrame, qsr } from '../test-build/src/index.js';
 
         const foos = [];
         const bars = [];

@@ -17,7 +17,7 @@ test.describe('setHTML', () => {
       <p class="empty">Test</p>
 
       <script type="module">
-        import { setHTML, qsr } from '../build/index.js';
+        import { setHTML, qsr } from '../test-build/src/index.js';
 
         setHTML(qsr(document, '.basic'), 'Hello <i>World</i>!');
         setHTML(qsr(document, '.basic'), 'Hello <i>World</i>!');
