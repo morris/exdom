@@ -36,16 +36,25 @@ export function useTestServer(t: typeof test) {
 
 export async function startCoverage(page: Page) {
   await fs.mkdir('coverage/tmp', { recursive: true });
-  await page.coverage.startJSCoverage();
+
+  try {
+    await page.coverage.startJSCoverage();
+  } catch (err) {
+    // ignore
+  }
 }
 
 export async function stopCoverage(page: Page) {
-  const result = await page.coverage.stopJSCoverage();
+  try {
+    const result = await page.coverage.stopJSCoverage();
 
-  await fs.writeFile(
-    `coverage/tmp/${randomUUID()}.json`,
-    JSON.stringify({ result: result.map(rewriteUrl) }),
-  );
+    await fs.writeFile(
+      `coverage/tmp/${randomUUID()}.json`,
+      JSON.stringify({ result: result.map(rewriteUrl) }),
+    );
+  } catch (err) {
+    // ignore
+  }
 }
 
 function rewriteUrl(entry: { url: string }) {
