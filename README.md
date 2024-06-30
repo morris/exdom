@@ -38,13 +38,13 @@ import { ... } from './exdom.js';
 ## Usage
 
 A very basic to-do app with exdom could look like this
-(in TypeScript, but JavaScript is equally possible):
+(in TypeScript, but JavaScript is equally possible)
+and covers most of exdom's [functions](https://morris.github.io/exdom):
 
 ```ts
 import {
   CustomEventElement,
   emit,
-  getValue,
   nextFrame,
   qsr,
   reconcile,
@@ -118,7 +118,7 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
   const labelInput = qsr<HTMLInputElement>(el, '[name=label]');
 
   qsr(el, '.add').addEventListener('click', () => {
-    emit<TodoAppEvents>(el, 'addTodoItem', getValue(labelInput) as string);
+    emit<TodoAppEvents>(el, 'addTodoItem', labelInput.value);
     setValue(labelInput, '');
   });
 

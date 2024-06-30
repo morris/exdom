@@ -1,7 +1,6 @@
 import {
   CustomEventElement,
   emit,
-  getValue,
   nextFrame,
   qsr,
   reconcile,
@@ -30,7 +29,7 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
   // Base HTML
 
   el.innerHTML = /* html */ `
-    <h1>Todo</h1>
+    <h1>To-Do</h1>
     <p>
       <input type="text" name="label">
       <button type="button" class="add">Add</button>
@@ -75,7 +74,7 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
   const labelInput = qsr<HTMLInputElement>(el, '[name=label]');
 
   qsr(el, '.add').addEventListener('click', () => {
-    emit<TodoAppEvents>(el, 'addTodoItem', getValue(labelInput) as string);
+    emit<TodoAppEvents>(el, 'addTodoItem', labelInput.value);
     setValue(labelInput, '');
   });
 

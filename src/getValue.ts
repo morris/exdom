@@ -3,9 +3,8 @@ export function getValue(el: HTMLElement) {
     case 'INPUT':
       return getValueOfInput(el as HTMLInputElement);
     case 'SELECT':
-      return (el as HTMLSelectElement).value || '';
     case 'TEXTAREA':
-      return (el as HTMLTextAreaElement).value || '';
+      return (el as HTMLSelectElement | HTMLTextAreaElement).value || '';
     default:
       return undefined;
   }
