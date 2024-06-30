@@ -11,6 +11,8 @@
     "strictFunctionTypes": true,
     "strictNullChecks": true,
 
-    "noEmit": true
+    "noEmit": true,
+    "target": "ES6",
+    "module": "ES6"
   }
 }

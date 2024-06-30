@@ -4,8 +4,6 @@
   "exclude": ["*.test.ts"],
   "compilerOptions": {
     "noEmit": false,
-    "target": "ES6",
-    "module": "ES6",
     "outDir": "test-build",
     "declaration": true,
     "sourceMap": true
