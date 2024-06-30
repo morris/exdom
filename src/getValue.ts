@@ -1,3 +1,7 @@
+/**
+ * Gets value of the given element, which can be an input of any type as well as
+ * a select or a textarea. Returns undefined otherwise.
+ */
 export function getValue(el: HTMLElement) {
   switch (el.tagName) {
     case 'INPUT':

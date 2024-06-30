@@ -7,8 +7,9 @@ Essential DOM utilities.
 - Reconciliation
 - Type-safe DOM event management
 
-Inspired by learnings from [VANILLA TODO](https://github.com/morris/vanilla-todo),
-a case study on viable techniques for vanilla web development.
+Inspired by learnings from
+[VANILLA TODO](https://github.com/morris/vanilla-todo), a case study on viable
+techniques for vanilla web development.
 
 ## Installation
 
@@ -37,9 +38,9 @@ import { ... } from './exdom.js';
 
 ## Usage
 
-A very basic to-do app with exdom could look like this
-(in TypeScript, but JavaScript is equally possible)
-and covers most of exdom's [functions](https://morris.github.io/exdom):
+A very basic to-do app with exdom could look like this (in TypeScript, but
+JavaScript is equally possible) and covers most of exdom's
+[functions](https://morris.github.io/exdom):
 
 ```ts
 import {

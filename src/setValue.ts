@@ -1,3 +1,7 @@
+/**
+ * Sets the value of an input, select, or textarea softly, i.e. without changing
+ * anything if the current input value already matches the given value.
+ */
 export function setValue(el: HTMLElement, value: unknown) {
   switch (el.tagName) {
     case 'INPUT':

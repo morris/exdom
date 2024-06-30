@@ -11,6 +11,11 @@ export function setAttr(
   value: string | number | true | null | undefined,
 ): void;
 
+/**
+ * Sets one or more attributes softly, i.e. does not make any changes if the
+ * attribute already has the probided value. Removes the attribute if the
+ * provided value is `undefined` or `null`.
+ */
 export function setAttr(
   el: HTMLElement,
   name: string | Record<string, string | number | true | null | undefined>,

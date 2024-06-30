@@ -1,3 +1,6 @@
+/**
+ * Type-safe event listener signatures for the events defined in `TDetails`.
+ */
 export type CustomEventTarget<TDetails> = {
   addEventListener<K extends keyof TDetails>(
     type: K,

@@ -1,5 +1,9 @@
 import { send } from './send.js';
 
+/**
+ * Relays events of the given type dispatched on the given source
+ * to the given targets (by dispatching as non-bubbling custom events).
+ */
 export function relay<TDetails>(
   source: EventTarget,
   type: keyof TDetails,

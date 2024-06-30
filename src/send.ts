@@ -1,5 +1,5 @@
 /**
- * Create and dispatch a non-bubbling custom event on the given target
+ * Create and dispatch a non-bubbling custom event on the given target.
  */
 export function send<TDetails>(
   target: EventTarget,

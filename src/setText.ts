@@ -1,5 +1,9 @@
 import type { Guards } from './internal/Guards.js';
 
+/**
+ * Sets inner text softly, i.e. without changing anything if the inner text
+ * already matches the given text.
+ */
 export function setText(el: HTMLElement, text: string) {
   if ((el as Guards).__setText !== text) {
     (el as Guards).__setText = text;

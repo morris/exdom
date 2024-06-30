@@ -1,7 +1,7 @@
 const queue = new Set<() => unknown>();
 
 /**
- * Enqueue the given function(s) to be called once on the next animation frame
+ * Enqueue the given function(s) to be called once on the next animation frame.
  */
 export function nextFrame(...fns: Array<() => unknown>) {
   if (queue.size === 0) {

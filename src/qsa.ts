@@ -1,5 +1,5 @@
 /**
- * Shortcut for `querySelectorAll` with `:scope` prefix
+ * Shortcut for `querySelectorAll` with `:scope` prefix.
  */
 export function qsa<T extends Element = HTMLElement>(
   scope: ParentNode,

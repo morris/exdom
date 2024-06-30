@@ -1,5 +1,9 @@
 import type { Guards } from './internal/Guards.js';
 
+/**
+ * Sets inner HTML softly, i.e. without changing anything if the inner HTML
+ * already matches the given HTML.
+ */
 export function setHTML(el: HTMLElement, html: string) {
   if ((el as Guards).__setHTML !== html) {
     (el as Guards).__setHTML = html;

@@ -3,6 +3,7 @@
 ## NEXT
 
 - Update README
+- Update docs
 - Add tests
 - Update deps
 
