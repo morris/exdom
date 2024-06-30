@@ -37,6 +37,9 @@ import { ... } from './exdom.js';
 
 ## Usage
 
+A very basic to-do app with exdom could look like this
+(in TypeScript, but JavaScript is equally possible:)
+
 ```ts
 import {
   CustomEventElement,
@@ -70,7 +73,7 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
   // Base HTML
 
   el.innerHTML = /* html */ `
-    <h1>Todo</h1>
+    <h1>To-Do</h1>
     <p>
       <input type="text" name="label">
       <button type="button" class="add">Add</button>
