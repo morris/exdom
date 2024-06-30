@@ -38,7 +38,7 @@ import { ... } from './exdom.js';
 ## Usage
 
 A very basic to-do app with exdom could look like this
-(in TypeScript, but JavaScript is equally possible:)
+(in TypeScript, but JavaScript is equally possible):
 
 ```ts
 import {
