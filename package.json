@@ -19,7 +19,8 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
+  "main": "dist/exdom.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint .",
     "format": "prettier --write .",

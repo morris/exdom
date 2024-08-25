@@ -248,7 +248,10 @@ export function setAttr(
   const __setAttr = ((el as SetGuards).__setAttr =
     (el as SetGuards).__setAttr ?? {});
 
-  if (!__setAttr.hasOwnProperty(name) || __setAttr[name] !== value) {
+  if (
+    !Object.prototype.hasOwnProperty.call(__setAttr, name) ||
+    __setAttr[name] !== value
+  ) {
     __setAttr[name] = value;
 
     if (value === false || value === undefined || value === null) {

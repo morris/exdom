@@ -39,6 +39,7 @@ export async function startCoverage(page: Page) {
 
   try {
     await page.coverage.startJSCoverage();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     // ignore
   }
@@ -52,6 +53,7 @@ export async function stopCoverage(page: Page) {
       `coverage/tmp/${randomUUID()}.json`,
       JSON.stringify({ result: result.map(rewriteUrl) }),
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     // ignore
   }
