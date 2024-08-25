@@ -18,7 +18,7 @@ test.describe('setText', () => {
       <p class="empty">Test</p>
 
       <script type="module">
-        import { setText, qsr } from '../test-build/src/index.js';
+        import { setText, qsr } from '../test-build/src/exdom.js';
 
         setText(qsr(document, '.basic'), 'Hello World!');
         setText(qsr(document, '.basic'), 'Hello World!');

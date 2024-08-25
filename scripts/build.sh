@@ -4,5 +4,4 @@ rm -rf dist
 
 tsc --project tsconfig.build.json
 
-esbuild dist/index.js --bundle --format=esm --outfile=dist/exdom.js
-esbuild dist/index.js --bundle --format=esm --minify --outfile=dist/exdom.min.js
+terser dist/exdom.js --compress --mangle toplevel --output dist/exdom.min.js

@@ -24,7 +24,7 @@ test.describe('qs', () => {
       <p class="baz">baz</p>
 
       <script type="module">
-        import { qs } from '../test-build/src/index.js';
+        import { qs } from '../test-build/src/exdom.js';
 
         qs(document, '.foo').classList.add('selected1');
         qs(document, '.bar').classList.add('selected2');

@@ -19,7 +19,7 @@ test.describe('nextFrame', () => {
       <p class="bar2"></p>
 
       <script type="module">
-        import { nextFrame, qsr } from '../test-build/src/index.js';
+        import { requestAnimationFrameOnce, qsr } from '../test-build/src/exdom.js';
 
         const foos = [];
         const bars = [];
@@ -32,25 +32,25 @@ test.describe('nextFrame', () => {
           bars.push("bar");
         }
 
-        nextFrame(foo);
-        nextFrame(bar);
-        nextFrame(foo);
-        nextFrame(bar);
-        nextFrame(bar);
+        requestAnimationFrameOnce(foo);
+        requestAnimationFrameOnce(bar);
+        requestAnimationFrameOnce(foo);
+        requestAnimationFrameOnce(bar);
+        requestAnimationFrameOnce(bar);
 
-        nextFrame(() => {
+        requestAnimationFrameOnce(() => {
           qsr(document, ".foo1").innerText = foos.length.toString();
           qsr(document, ".bar1").innerText = bars.length.toString();
         });
 
-        nextFrame(() => {
-          nextFrame(foo);
-          nextFrame(bar);
-          nextFrame(foo);
-          nextFrame(bar);
-          nextFrame(bar);
+        requestAnimationFrameOnce(() => {
+          requestAnimationFrameOnce(foo);
+          requestAnimationFrameOnce(bar);
+          requestAnimationFrameOnce(foo);
+          requestAnimationFrameOnce(bar);
+          requestAnimationFrameOnce(bar);
 
-          nextFrame(() => {
+          requestAnimationFrameOnce(() => {
             qsr(document, ".foo2").innerText = foos.length.toString();
             qsr(document, ".bar2").innerText = bars.length.toString();
           });

@@ -25,7 +25,7 @@ test.describe('reconcile', () => {
       </ul>
 
       <script type="module">
-        import { reconcile, qsr } from '../test-build/src/index.js';
+        import { reconcile, qsr } from '../test-build/src/exdom.js';
 
         reconcile({
           container: qsr(document, '.empty'),
@@ -48,7 +48,7 @@ test.describe('reconcile', () => {
         reconcile({
           container: qsr(document, '.list'),
           items: [{ uuid: '1' }, { uuid: '3' }, { uuid: '4' }],
-          key: 'uuid',
+          key: (item) => item.uuid,
           create: (item) => document.createElement("li"),
           update: (child, item) => {
             child.innerText = item.uuid;
