@@ -1,6 +1,6 @@
 {
   "name": "exdom",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Essential DOM utilities",
   "keywords": [
     "dom",
@@ -28,7 +28,7 @@
     "build": "bash scripts/build.sh",
     "test": "bash scripts/test.sh",
     "clean": "rm -rf coverage dist test-build test-results",
-    "docs": "typedoc src/index.ts --excludeProtected --excludePrivate"
+    "docs": "typedoc src/exdom.ts --excludeProtected --excludePrivate"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
