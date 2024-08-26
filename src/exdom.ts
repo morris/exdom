@@ -32,18 +32,17 @@ export type CustomEventElement<
 > = CustomEventTarget<TDetails> & TElement;
 
 /**
- * Internal class just for the `typeof` trick below. Never actually used.
+ * Internal declaration for the `typeof` trick below.
+ * Never actually implemented.
  */
-class _TypedCustomEvent<
+declare class _TypedCustomEvent<
   TDetails,
   TType extends keyof TDetails,
 > extends CustomEvent<TDetails[TType]> {
   constructor(
     type: TType,
     eventInitDict: { detail: TDetails[TType] } & EventInit,
-  ) {
-    super(type as string, eventInitDict);
-  }
+  );
 }
 
 /**
@@ -55,12 +54,13 @@ export const TypedCustomEvent = CustomEvent as typeof _TypedCustomEvent;
 
 //
 
-const escapeDiv = document?.createElement('div');
+let escapeDiv: HTMLElement;
 
 /**
  * Escapes any HTML in the given text.
  */
 export function escapeHTML(text: string) {
+  escapeDiv = escapeDiv ?? document.createElement('div');
   escapeDiv.innerText = text;
 
   return escapeDiv.innerHTML;

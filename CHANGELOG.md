@@ -3,7 +3,7 @@
 ## NEXT
 
 - BREAKING: Rename `nextFrame` to `requestAnimationFrameOnce`
-- BREAKING: Remove `key: string` in `reconcile` (must be function, if any)
+- BREAKING: Remove `key: string` in `reconcile` (`key` must be function, if any)
 - BREAKING: Remove `emit`, `send` and `relay`as they cannot be implemented in a
   type-safe way
 - BREAKING: Remove `getValue` as it did not provide non-trivial work
@@ -11,7 +11,8 @@
 - Add `TypedCustomEvent` constructor and typed `dispatchEvent` signature to
   `CustomEventTarget` (can infer details based on event target and type)
 - Use indexes as key fallback in `reconcile`
-- Handles boolean values correctly in `setAttr`
+- Handle boolean values correctly in `setAttr`
+- Fix top-level `document` access
 - Migrate to one file library
 - Update dependencies
 
