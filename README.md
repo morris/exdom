@@ -45,16 +45,15 @@ JavaScript is equally possible) and covers most of exdom's
 ```ts
 import {
   CustomEventElement,
-  emit,
-  nextFrame,
   qsr,
   reconcile,
-  send,
+  requestAnimationFrameOnce,
   setText,
   setValue,
+  TypedCustomEvent,
 } from 'exdom';
 
-// Type-safe custom DOM events
+// Type-safe custom DOM event details
 
 interface TodoAppEvents {
   addTodoItem: string;
@@ -92,6 +91,19 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
     },
   ];
 
+  // Idempotent update
+
+  function update() {
+    // Reconcile todo item components with item list
+    reconcile({
+      container: qsr(el, '.items'),
+      items,
+      create: () => TodoItem(document.createElement('li')),
+      update: (el, item) =>
+        el.dispatchEvent(new TypedCustomEvent('todoItem', { detail: item })),
+    });
+  }
+
   // Action handlers
 
   el.addEventListener('addTodoItem', (e) => {
@@ -103,7 +115,7 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
 
     items = [...items, newItem];
 
-    nextFrame(update);
+    requestAnimationFrameOnce(update);
   });
 
   el.addEventListener('toggleTodoItem', (e) => {
@@ -111,7 +123,7 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
       item.id === e.detail ? { ...item, done: !item.done } : item,
     );
 
-    nextFrame(update);
+    requestAnimationFrameOnce(update);
   });
 
   // UI Events
@@ -119,21 +131,14 @@ function TodoApp(el: CustomEventElement<TodoAppEvents>) {
   const labelInput = qsr<HTMLInputElement>(el, '[name=label]');
 
   qsr(el, '.add').addEventListener('click', () => {
-    emit<TodoAppEvents>(el, 'addTodoItem', labelInput.value);
+    el.dispatchEvent(
+      new TypedCustomEvent('addTodoItem', {
+        detail: labelInput.value,
+        bubbles: true,
+      }),
+    );
     setValue(labelInput, '');
   });
-
-  // Idempotent update
-
-  function update() {
-    // Reconcile todo item components with item list
-    reconcile({
-      container: qsr(el, '.items'),
-      items: items,
-      create: () => TodoItem(document.createElement('li')),
-      update: (el, item) => send<TodoAppEvents>(el, 'todoItem', item),
-    });
-  }
 
   update(); // Initial update
 
@@ -148,20 +153,24 @@ function TodoItem(el: CustomEventElement<TodoAppEvents>) {
 
   let data: TodoItemData;
 
-  el.addEventListener('todoItem', (e) => {
-    data = e.detail;
-    nextFrame(update);
-  });
-
-  qsr(el, '[type=checkbox]').addEventListener('click', () => {
-    // Emit action event (handled somewhere up the DOM)
-    emit<TodoAppEvents>(el, 'toggleTodoItem', data.id);
-  });
-
   function update() {
     setText(qsr(el, 'label'), data.label);
     setValue(qsr(el, '[type=checkbox]'), data.done);
   }
+
+  el.addEventListener('todoItem', (e) => {
+    data = e.detail;
+    requestAnimationFrameOnce(update);
+  });
+
+  qsr(el, '[type=checkbox]').addEventListener('click', () => {
+    el.dispatchEvent(
+      new TypedCustomEvent('toggleTodoItem', {
+        detail: data.id,
+        bubbles: true,
+      }),
+    );
+  });
 
   return el;
 }
