@@ -50,7 +50,9 @@ declare class _TypedCustomEvent<
  * Use with `CustomEventTarget.dispatchEvent` to infer `detail` types
  * automatically.
  */
-export const TypedCustomEvent = CustomEvent as typeof _TypedCustomEvent;
+export const TypedCustomEvent = (
+  typeof CustomEvent !== 'undefined' ? CustomEvent : undefined
+) as typeof _TypedCustomEvent;
 
 //
 
