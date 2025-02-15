@@ -56,17 +56,25 @@ export const TypedCustomEvent = (
 
 //
 
-let escapeDiv: HTMLElement;
-
 /**
- * Escapes any HTML in the given text.
+ * Escapes HTML in the given text.
  */
 export function escapeHTML(text: string) {
-  escapeDiv = escapeDiv ?? document.createElement('div');
-  escapeDiv.innerText = text;
-
-  return escapeDiv.innerHTML;
+  return text.replace(ESCAPE_HTML_CHAR_RX, escapeHTMLCharacter);
 }
+
+function escapeHTMLCharacter(character: string) {
+  return ESCAPE_HTML_CHAR_MAP[character as keyof typeof ESCAPE_HTML_CHAR_MAP];
+}
+
+const ESCAPE_HTML_CHAR_RX = /[&<>"']/g;
+const ESCAPE_HTML_CHAR_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
 
 //
 
