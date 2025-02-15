@@ -23,10 +23,10 @@ When not using a bundler, exdom can be imported via CDN:
 
 ```ts
 // src/exdom.js or src/exdom.ts
-export * from 'https://cdn.jsdelivr.net/npm/exdom@2.0.0/dist/exdom.min.js';
+export * from 'https://cdn.jsdelivr.net/npm/exdom@2/dist/exdom.min.js';
 
 // src/exdom.d.ts
-declare module 'https://cdn.jsdelivr.net/npm/exdom@2.0.0/dist/exdom.min.js' {
+declare module 'https://cdn.jsdelivr.net/npm/exdom@2/dist/exdom.min.js' {
   export * from 'exdom';
 }
 
