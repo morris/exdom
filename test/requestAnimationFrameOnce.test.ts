@@ -1,18 +1,16 @@
 import { expect, test } from '@playwright/test';
-import { startCoverage, stopCoverage, useTestServer } from './testUtil';
+import { useTestServer } from './useTestServer.js';
 
-test.describe('nextFrame', () => {
+test.describe('requestAnimationFrameOnce', () => {
   const getServer = useTestServer(test);
 
   test('enqueues functions to run once in the next frame', async ({ page }) => {
-    await startCoverage(page);
-
     const { url } = getServer();
 
     await page.goto(url);
 
     await page.setContent(`
-      <h1>nextFrame</h1>
+      <h1>requestAnimationFrameOnce</h1>
       <p class="foo1"></p>
       <p class="bar1"></p>
       <p class="foo2"></p>
@@ -59,8 +57,6 @@ test.describe('nextFrame', () => {
 
       </script>
     `);
-
-    await stopCoverage(page);
 
     await expect(page.locator('.foo1')).toHaveText('1');
     await expect(page.locator('.bar1')).toHaveText('1');

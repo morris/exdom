@@ -6,18 +6,17 @@ export default defineConfig({
   projects: [
     /* Test against desktop browsers */
     {
-      name: 'chromium',
+      name: 'Chromium',
       use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'firefox',
+      name: 'Firefox',
       use: { ...devices['Desktop Firefox'] },
     },
     {
-      name: 'webkit',
+      name: 'Safari',
       use: { ...devices['Desktop Safari'] },
     },
-    /* Test against mobile viewports. */
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
@@ -26,14 +25,13 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
     },
-    /* Test against branded browsers. */
     {
       name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' }, // or 'chrome-beta'
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
     {
       name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' }, // or 'msedge-dev'
+      use: { ...devices['Desktop Edge'], channel: 'msedge' },
     },
   ],
 });

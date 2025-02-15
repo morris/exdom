@@ -1,12 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { startCoverage, stopCoverage, useTestServer } from './testUtil';
+import './coverage.js';
+import { useTestServer } from './useTestServer.js';
 
 test.describe('setText', () => {
   const getServer = useTestServer(test);
 
   test('sets inner text of an element', async ({ page }) => {
-    await startCoverage(page);
-
     const { url } = getServer();
 
     await page.goto(url);
@@ -27,8 +26,6 @@ test.describe('setText', () => {
         setText(qsr(document, '.empty'), '');
       </script>
     `);
-
-    await stopCoverage(page);
 
     await expect(page.locator('.basic')).toHaveText('Hello World!');
     await expect(page.locator('.escaped')).toHaveText('Hello <i>World</i>!');

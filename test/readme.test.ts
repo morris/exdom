@@ -1,12 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { startCoverage, stopCoverage, useTestServer } from './testUtil';
+import './coverage.js';
+import { useTestServer } from './useTestServer.js';
 
 test.describe('README example', () => {
   const getServer = useTestServer(test);
 
   test('works', async ({ page }) => {
-    await startCoverage(page);
-
     const { url } = getServer();
 
     await page.goto(url);
@@ -23,7 +22,5 @@ test.describe('README example', () => {
     await page.locator('.add').click();
 
     await expect(page.locator('#app')).toHaveScreenshot();
-
-    await stopCoverage(page);
   });
 });

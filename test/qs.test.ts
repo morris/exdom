@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { startCoverage, stopCoverage, useTestServer } from './testUtil';
+import './coverage.js';
+import { useTestServer } from './useTestServer.js';
 
 test.describe('qs', () => {
   const getServer = useTestServer(test);
@@ -7,8 +8,6 @@ test.describe('qs', () => {
   test('selects the first matching element for the given selectors', async ({
     page,
   }) => {
-    await startCoverage(page);
-
     const { url } = getServer();
 
     await page.goto(url);
@@ -37,7 +36,5 @@ test.describe('qs', () => {
     await expect(page.locator('.bar').first()).toHaveClass('bar selected2');
     await expect(page.locator('div.bar')).toHaveClass('bar selected3');
     await expect(page.locator('.bar > .baz')).toHaveClass('baz selected4');
-
-    await stopCoverage(page);
   });
 });

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { startCoverage, stopCoverage, useTestServer } from './testUtil';
+import './coverage.js';
+import { useTestServer } from './useTestServer.js';
 
 test.describe('reconcile', () => {
   const getServer = useTestServer(test);
@@ -7,8 +8,6 @@ test.describe('reconcile', () => {
   test("reconciles a containers' children by mapping given items to individual elements", async ({
     page,
   }) => {
-    await startCoverage(page);
-
     const { url } = getServer();
 
     await page.goto(url);
@@ -56,8 +55,6 @@ test.describe('reconcile', () => {
         });
       </script>
     `);
-
-    await stopCoverage(page);
 
     await expect(page.locator('.empty p').nth(0)).toHaveText('1');
     await expect(page.locator('.empty p').nth(1)).toHaveText('2');

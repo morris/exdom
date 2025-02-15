@@ -2,6 +2,11 @@
 
 ## NEXT
 
+- Streamline test setup
+- Update dependencies
+
+## 2.0.0
+
 - BREAKING: Rename `nextFrame` to `requestAnimationFrameOnce`
 - BREAKING: Remove `key: string` in `reconcile` (`key` must be function, if any)
 - BREAKING: Remove `emit`, `send` and `relay`as they cannot be implemented in a

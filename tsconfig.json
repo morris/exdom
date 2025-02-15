@@ -1,18 +1,16 @@
 {
   "include": ["src", "test"],
   "compilerOptions": {
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "nodenext",
 
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
     "strict": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
+    "noUnusedLocals": true,
 
-    "noEmit": true,
     "target": "ES6",
-    "module": "ES6"
+    "module": "NodeNext",
+    "sourceMap": true,
+    "declaration": true,
+
+    "noEmit": true
   }
 }

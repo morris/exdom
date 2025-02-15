@@ -1,11 +1,8 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "test"],
-  "exclude": ["*.test.ts"],
+  "include": ["src", "test/readme.ts"],
   "compilerOptions": {
-    "noEmit": false,
     "outDir": "test-build",
-    "declaration": true,
-    "sourceMap": true
+    "noEmit": false
   }
 }
