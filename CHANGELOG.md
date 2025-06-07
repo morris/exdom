@@ -2,6 +2,10 @@
 
 ## NEXT
 
+- Update dependencies
+
+## 2.0.1
+
 - Simplify `escapeHTML`
 - Streamline test setup
 - Update dependencies
