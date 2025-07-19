@@ -377,9 +377,11 @@ function setValueOfSelect(el: HTMLSelectElement, value: unknown) {
 
   for (const option of el.options) {
     const optionValue = option.value || option.textContent;
-    option.selected = multiple
+    const selected = multiple
       ? v.indexOf(optionValue as string) >= 0
       : v === optionValue;
+
+    if (option.selected !== selected) option.selected = selected;
   }
 }
 

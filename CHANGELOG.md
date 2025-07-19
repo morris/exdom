@@ -4,6 +4,8 @@
 
 - Make `update` optional in `reconcile`
 - Use `item` (if it is a string) as key fallback in `reconcile`
+- Make `setValue` on `select` elements softer
+- Add test for `setValue`
 - Update dependencies
 
 ## 2.0.1
