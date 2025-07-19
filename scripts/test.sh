@@ -3,7 +3,7 @@ set -o errexit
 set -o pipefail
 set -x
 
-rm -rf coverage test-build
+rm -rf test-build
 
 tsc --project tsconfig.test.json
 
