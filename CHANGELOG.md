@@ -1,6 +1,6 @@
 # Changelog
 
-## NEXT
+## 2.1.0
 
 - Make `update` optional in `reconcile`
 - Use `item` (if it is a string) as key fallback in `reconcile`
