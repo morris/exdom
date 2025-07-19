@@ -131,7 +131,7 @@ export interface ReconcileOptions<TItem, TChild extends HTMLElement> {
   items: TItem[];
   /**
    * Key function for item identification.
-   * If omitted, `item.id` or `item.key` or `index` is used.
+   * If omitted, `item.id` or `item.key` or `item` (if a string) or `index` is used.
    */
   key?: (item: TItem, index: number) => string;
   /**
@@ -141,7 +141,7 @@ export interface ReconcileOptions<TItem, TChild extends HTMLElement> {
   /**
    * Function that updates an existing element using the given data item
    */
-  update: (child: TChild, item: TItem, index: number) => void;
+  update?: (child: TChild, item: TItem, index: number) => void;
 }
 
 /**
@@ -178,7 +178,9 @@ export function reconcile<TItem, TChild extends HTMLElement>(
       child.dataset.key = k;
     }
 
-    update(child, item, index);
+    if (update) {
+      update(child, item, index);
+    }
 
     return child;
   });
@@ -193,8 +195,22 @@ export function reconcile<TItem, TChild extends HTMLElement>(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function reconcileDefaultKey(item: any, index: number) {
-  return `${item?.id ?? item?.key ?? index}`;
+function reconcileDefaultKey(item: any, index: number): string {
+  if (typeof item === 'string') {
+    return item;
+  }
+
+  if (item) {
+    if (typeof item.id === 'string') {
+      return item.id;
+    }
+
+    if (typeof item.key === 'string') {
+      return item.key;
+    }
+  }
+
+  return index.toString();
 }
 
 //
@@ -350,7 +366,9 @@ function setValueOfInput(el: HTMLInputElement, value: unknown) {
 function setValueOfTextArea(el: HTMLTextAreaElement, value: unknown) {
   const v = toValue(value);
 
-  if (!Array.isArray(v) && el.value !== v) el.value = v;
+  if (!Array.isArray(v) && el.value !== v) {
+    el.value = v;
+  }
 }
 
 function setValueOfSelect(el: HTMLSelectElement, value: unknown) {

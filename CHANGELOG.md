@@ -2,6 +2,8 @@
 
 ## NEXT
 
+- Make `update` optional in `reconcile`
+- Use `item` (if it is a string) as key fallback in `reconcile`
 - Update dependencies
 
 ## 2.0.1
