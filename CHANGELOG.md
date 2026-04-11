@@ -1,5 +1,9 @@
 # Changelog
 
+## NEXT
+
+- Update dependencies
+
 ## 2.1.0
 
 - Make `update` optional in `reconcile`

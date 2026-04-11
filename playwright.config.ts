@@ -4,7 +4,6 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   ignoreSnapshots: process.env.CI ? true : false,
   projects: [
-    /* Test against desktop browsers */
     {
       name: 'Chromium',
       use: { ...devices['Desktop Chrome'] },
