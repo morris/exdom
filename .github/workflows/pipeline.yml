@@ -4,6 +4,8 @@ on: push
 
 jobs:
   check:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +21,8 @@ jobs:
         env:
           CI: true
   publish:
+    permissions:
+      contents: read
     if: github.ref == 'refs/heads/main'
     needs: check
     runs-on: ubuntu-latest
